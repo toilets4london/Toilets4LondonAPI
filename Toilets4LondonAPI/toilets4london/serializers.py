@@ -51,8 +51,7 @@ class ToiletSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
-    toilets = serializers.PrimaryKeyRelatedField(many=True, queryset=Toilet.objects.all())
-
+    toilets = serializers.HyperlinkedRelatedField(many=True, view_name='toilet-detail',read_only=True)
     class Meta:
         model = User
         fields = ['url', 'id', 'username', 'toilets']
