@@ -6,6 +6,9 @@ from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import filters
+
+from django_filters.rest_framework import DjangoFilterBackend
 
 from django.contrib.auth.models import User
 
@@ -19,6 +22,9 @@ class ToiletViewSet(viewsets.ModelViewSet):
     serializer_class = ToiletSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly,
                           IsOwnerOrReadOnly]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['borough', 'latitude','longitude','name']
+    search_fields = ['address', 'name', 'borough']
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
