@@ -10,7 +10,7 @@ from rest_framework import status
 from django.contrib.auth.models import User
 
 
-# https://www.django-rest-framework.org/tutorial/
+# https://www.django-rest-framework.org/tutorial/1-serialization/
 
 
 # This viewset automatically provides `list`, `create`, `retrieve`, `update` and `destroy` actions.

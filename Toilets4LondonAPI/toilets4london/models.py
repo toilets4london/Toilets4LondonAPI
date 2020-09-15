@@ -10,7 +10,14 @@ from django.db import models
 class Toilet(models.Model):
     address = models.CharField(max_length=500, blank=True, default='')
     borough = models.CharField(max_length=100, blank=True, default='')
+    latitude = models.FloatField()
+    longitude = models.FloatField()
     owner = models.ForeignKey('auth.User', related_name='toilets', on_delete=models.CASCADE)
+    opening_hours = models.CharField(max_length=500, blank=True, default='')
+    name = models.CharField(max_length=500, blank=True, default='')
+    wheelchair = models.BooleanField(blank=True, default=False)
+
+
 
 
 

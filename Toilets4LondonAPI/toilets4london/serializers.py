@@ -38,7 +38,16 @@ class ToiletSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Toilet
-        fields = ['url', 'id', 'owner', 'address', 'borough']
+        fields = ['url',
+                  'id',
+                  'owner',
+                  'address',
+                  'borough',
+                  'latitude',
+                  'longitude',
+                  'opening_hours',
+                  'wheelchair',
+                  'name']
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
