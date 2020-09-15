@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from Toilets4LondonAPI.toilets4london.models import Toilet
+from django.contrib.auth.models import User
 
 
 # class ToiletSerializer(serializers.Serializer):
@@ -20,12 +21,29 @@ from Toilets4LondonAPI.toilets4london.models import Toilet
 #         return instance
 
 
-class ToiletSerializer(serializers.ModelSerializer):
+class ToiletSerializer(serializers.HyperlinkedModelSerializer):
     """
     shortcut for creating serializer classes:
     An automatically determined set of fields.
     Simple default implementations for the create() and update() methods.
     """
+
+    # The untyped ReadOnlyField is always read-only,
+    # and will be used for serialized representations,
+    # but will not be used for updating model instances
+    # when they are deserialized.
+    # We could have also used CharField(read_only=True) here.
+
+    owner = serializers.ReadOnlyField(source='owner.username')
+
     class Meta:
         model = Toilet
-        fields = ['id', 'address','borough']
+        fields = ['url', 'id', 'owner', 'address', 'borough']
+
+
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    toilets = serializers.PrimaryKeyRelatedField(many=True, queryset=Toilet.objects.all())
+
+    class Meta:
+        model = User
+        fields = ['url', 'id', 'username', 'toilets']

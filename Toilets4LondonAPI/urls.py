@@ -1,10 +1,17 @@
-from django.urls import path
-from rest_framework.urlpatterns import format_suffix_patterns
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from Toilets4LondonAPI.toilets4london import views
 
+# Create a router and register our viewsets with it.
+router = DefaultRouter()
+router.register(r'toilets', views.ToiletViewSet)
+router.register(r'users', views.UserViewSet)
+
+# The API URLs are now determined automatically by the router.
 urlpatterns = [
-    path('toilets/', views.ToiletList.as_view()),
-    path('toilets/<int:pk>/', views.ToiletDetail.as_view()),
+    path('', include(router.urls)),
 ]
 
-urlpatterns = format_suffix_patterns(urlpatterns)
+urlpatterns += [
+    path('api-auth/', include('rest_framework.urls')),
+]
