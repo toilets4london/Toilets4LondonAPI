@@ -1,6 +1,6 @@
 from Toilets4LondonAPI.toilets4london.models import Toilet
 from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, UserSerializer
-from Toilets4LondonAPI.toilets4london.permissions import IsOwnerOrReadOnly
+from Toilets4LondonAPI.toilets4london.permissions import IsAdminUserOrReadOnly
 
 from rest_framework import permissions, viewsets, status, filters, renderers, generics
 from rest_framework.response import Response
@@ -21,7 +21,7 @@ class ToiletViewSet(viewsets.ModelViewSet):
     queryset = Toilet.objects.all()
     serializer_class = ToiletSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                          IsOwnerOrReadOnly]
+                          IsAdminUserOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['borough', 'latitude','longitude','name']
     search_fields = ['address', 'name', 'borough']
@@ -43,6 +43,6 @@ class ToiletViewSet(viewsets.ModelViewSet):
 
 
 # This viewset automatically provides `list` and `detail` actions.
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+# class UserViewSet(viewsets.ReadOnlyModelViewSet):
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer

@@ -7,7 +7,7 @@ router = DefaultRouter()
 router.get_api_root_view().cls.__name__ = "LondonToiletsApiRoot"
 router.get_api_root_view().cls.__doc__ = "Browse the Toilets4London API"
 
-router.register(r'users', views.UserViewSet)
+# router.register(r'users', views.UserViewSet)
 router.register(r'toilets', views.ToiletViewSet)
 
 # The API URLs are now determined automatically by the router.
