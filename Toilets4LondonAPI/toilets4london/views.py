@@ -2,16 +2,16 @@ from Toilets4LondonAPI.toilets4london.models import Toilet
 from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, UserSerializer
 from Toilets4LondonAPI.toilets4london.permissions import IsOwnerOrReadOnly
 
-from rest_framework import permissions
-from rest_framework import viewsets
+from rest_framework import permissions, viewsets, status, filters, renderers, generics
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework import filters
+from rest_framework.decorators import action
 
 from django_filters.rest_framework import DjangoFilterBackend
 
 from django.contrib.auth.models import User
+from django.urls import reverse
 
+import json
 
 # https://www.django-rest-framework.org/tutorial/1-serialization/
 
@@ -35,6 +35,11 @@ class ToiletViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @action(detail=False, methods=['get'], renderer_classes=[renderers.TemplateHTMLRenderer])
+    def view_map(self, request):
+        queryset = Toilet.objects.all()
+        return Response({"toilets": queryset,"base_url": reverse('toilet-list')}, template_name='toilet_map.html')
 
 
 # This viewset automatically provides `list` and `detail` actions.
