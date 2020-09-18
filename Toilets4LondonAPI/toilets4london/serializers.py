@@ -59,16 +59,10 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class RatingSerializer(serializers.HyperlinkedModelSerializer):
+
     user = serializers.ReadOnlyField(source='user.username')
     toilet = serializers.PrimaryKeyRelatedField(queryset=Toilet.objects.all())
     toilet_url = serializers.SerializerMethodField('get_toilet_url', read_only=True)
-
-    validators = [
-        UniqueTogetherValidator(
-            queryset=Rating.objects.all(),
-            fields=['user', 'toilet']
-        )
-    ]
 
     class Meta:
         model = Rating
