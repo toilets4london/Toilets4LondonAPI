@@ -1,5 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework.authtoken import views as authviews
 from Toilets4LondonAPI.toilets4london import views
 
 # Create a router and register our viewsets with it.
@@ -20,4 +21,5 @@ urlpatterns = [
 
 urlpatterns += [
     path('api-auth/', include('rest_framework.urls')),
+    path('api-token-auth/', authviews.obtain_auth_token, name='api-token-auth'),
 ]

@@ -19,7 +19,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         return obj.owner == request.user or request.user.is_staff
 
 
-class IsReviewerOrStaff(permissions.BasePermission):
+class IsReviewerOrAdmin(permissions.BasePermission):
     """
     Custom permission to only allow reviewers of a toilet or staff to see the review
     Anyone who is authenticated can post a review
@@ -28,7 +28,7 @@ class IsReviewerOrStaff(permissions.BasePermission):
         if request.method == 'POST':
             return permissions.IsAuthenticated
         else:
-            return obj.user == request.user or request.user.is_staff
+            return obj.user == request.user or request.user.is_admin
 
 
 class IsAdminUserOrReadOnly(permissions.IsAdminUser):
