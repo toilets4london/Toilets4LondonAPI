@@ -1,6 +1,6 @@
-from Toilets4LondonAPI.toilets4london.models import Toilet
-from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, UserSerializer
-from Toilets4LondonAPI.toilets4london.permissions import IsAdminUserOrReadOnly
+from Toilets4LondonAPI.toilets4london.models import Toilet, Rating
+from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, UserSerializer, RatingSerializer
+from Toilets4LondonAPI.toilets4london.permissions import IsAdminUserOrReadOnly, IsReviewerOrStaff
 
 from rest_framework import permissions, viewsets, status, filters, renderers, generics
 from rest_framework.response import Response
@@ -10,10 +10,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from django.contrib.auth.models import User
 from django.urls import reverse
-
-import json
-
-# https://www.django-rest-framework.org/tutorial/1-serialization/
 
 
 # This viewset automatically provides `list`, `create`, `retrieve`, `update` and `destroy` actions.
@@ -42,7 +38,16 @@ class ToiletViewSet(viewsets.ModelViewSet):
         return Response({"toilets": queryset,"base_url": reverse('toilet-list')}, template_name='toilet_map.html')
 
 
-# This viewset automatically provides `list` and `detail` actions.
-# class UserViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [permissions.IsAdminUser]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class RatingViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsReviewerOrStaff]
+    queryset = Rating.objects.all()
+    serializer_class = RatingSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

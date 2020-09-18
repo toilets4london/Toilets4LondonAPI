@@ -1,24 +1,8 @@
 from rest_framework import serializers
-from Toilets4LondonAPI.toilets4london.models import Toilet
+from Toilets4LondonAPI.toilets4london.models import Toilet, Rating
 from django.contrib.auth.models import User
-
-
-# class ToiletSerializer(serializers.Serializer):
-#     id = serializers.IntegerField(read_only=True)
-#     address = serializers.CharField(required=False, allow_blank=True, max_length=500)
-#     borough = serializers.CharField(required=False, allow_blank=True, max_length=100)
-#
-#     def create(self, validated_data):
-#         return Toilet.objects.create(**validated_data)
-#
-#     def update(self, instance, validated_data):
-#         """
-#         Update and return an existing Toilet instance, given the validated data.
-#         """
-#         instance.address = validated_data.get('address', instance.address)
-#         instance.borough = validated_data.get('borough', instance.borough)
-#         instance.save()
-#         return instance
+from collections import Counter
+from rest_framework.reverse import reverse
 
 
 class ToiletSerializer(serializers.HyperlinkedModelSerializer):
@@ -35,6 +19,7 @@ class ToiletSerializer(serializers.HyperlinkedModelSerializer):
     # We could have also used CharField(read_only=True) here.
 
     owner = serializers.ReadOnlyField(source='owner.username')
+    ratings = serializers.SerializerMethodField('get_ratings_detail')
 
     class Meta:
         model = Toilet
@@ -47,11 +32,34 @@ class ToiletSerializer(serializers.HyperlinkedModelSerializer):
                   'longitude',
                   'opening_hours',
                   'wheelchair',
-                  'name']
+                  'name',
+                  'ratings',]
+
+
+    def get_ratings_detail(self, obj):
+        ratings = Rating.objects.filter(toilet=obj)
+        ratings = Counter(ratings.values_list("rating", flat=True))
+        return {f"rating{star}_star": count for star, count in ratings.items()}
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     toilets = serializers.HyperlinkedRelatedField(many=True, view_name='toilet-detail',read_only=True)
+
     class Meta:
         model = User
         fields = ['url', 'id', 'username', 'toilets']
+
+
+class RatingSerializer(serializers.HyperlinkedModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+    toilet = serializers.PrimaryKeyRelatedField(queryset=Toilet.objects.all())
+    toilet_url = serializers.SerializerMethodField('get_toilet_url', read_only=True)
+
+    class Meta:
+        model = Rating
+        fields = ['url', 'toilet', 'toilet_url', 'user', 'rating']
+
+    def get_toilet_url(self, obj):
+        request = self.context['request']
+        return reverse('toilet-detail', args=[obj.toilet.pk], request=request)
+

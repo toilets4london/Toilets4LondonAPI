@@ -1,5 +1,4 @@
 from django.db import models
-from django.urls import reverse
 
 # Toilets are always associated with a creator.
 # Only authenticated users may create toilets.
@@ -17,7 +16,19 @@ class Toilet(models.Model):
     name = models.CharField(max_length=500, blank=True, default='')
     wheelchair = models.BooleanField(blank=True, default=False)
 
+    def __str__(self):
+        if len(self.name) > 0:
+            return self.name
+        else:
+            return str(self.pk)
 
 
-
-
+class Rating(models.Model):
+    SCORE_CHOICES = zip(range(1,6), range(1,6))
+    class Meta:
+        unique_together = [
+            'user',
+            'toilet']
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='user')
+    toilet = models.ForeignKey(Toilet, on_delete=models.CASCADE, related_name='toilet')
+    rating = models.PositiveSmallIntegerField(choices=SCORE_CHOICES, blank=False)

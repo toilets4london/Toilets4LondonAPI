@@ -16,7 +16,19 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
             return True
 
         # Write permissions are only allowed to the owner of the snippet.
-        return obj.owner == request.user
+        return obj.owner == request.user or request.user.is_staff
+
+
+class IsReviewerOrStaff(permissions.BasePermission):
+    """
+    Custom permission to only allow reviewers of a toilet or staff to see the review
+    Anyone who is authenticated can post a review
+    """
+    def has_object_permission(self, request, view, obj):
+        if request.method == 'POST':
+            return permissions.IsAuthenticated
+        else:
+            return obj.user == request.user or request.user.is_staff
 
 
 class IsAdminUserOrReadOnly(permissions.IsAdminUser):
