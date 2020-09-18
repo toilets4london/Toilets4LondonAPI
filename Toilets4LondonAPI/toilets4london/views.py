@@ -1,6 +1,6 @@
 from Toilets4LondonAPI.toilets4london.models import Toilet, Rating
 from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, UserSerializer, RatingSerializer
-from Toilets4LondonAPI.toilets4london.permissions import IsAdminUserOrReadOnly, IsReviewerOrStaff
+from Toilets4LondonAPI.toilets4london.permissions import IsAdminUserOrReadOnly, IsReviewerOrAdmin
 
 from rest_framework import permissions, viewsets, status, filters, renderers, generics
 from rest_framework.response import Response
@@ -45,7 +45,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RatingViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsReviewerOrStaff]
+    permission_classes = [IsReviewerOrAdmin]
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer
 

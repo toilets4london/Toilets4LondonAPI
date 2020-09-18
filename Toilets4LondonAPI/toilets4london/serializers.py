@@ -3,6 +3,7 @@ from Toilets4LondonAPI.toilets4london.models import Toilet, Rating
 from django.contrib.auth.models import User
 from collections import Counter
 from rest_framework.reverse import reverse
+from rest_framework.validators import UniqueTogetherValidator
 
 
 class ToiletSerializer(serializers.HyperlinkedModelSerializer):
@@ -45,15 +46,29 @@ class ToiletSerializer(serializers.HyperlinkedModelSerializer):
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     toilets = serializers.HyperlinkedRelatedField(many=True, view_name='toilet-detail',read_only=True)
 
+    validators = [
+        UniqueTogetherValidator(
+            queryset=User.objects.all(),
+            fields=['username', 'email']
+        )
+    ]
+
     class Meta:
         model = User
-        fields = ['url', 'id', 'username', 'toilets']
+        fields = ['url', 'id', 'username', 'first_name', 'last_name', 'email', 'password', 'toilets']
 
 
 class RatingSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
     toilet = serializers.PrimaryKeyRelatedField(queryset=Toilet.objects.all())
     toilet_url = serializers.SerializerMethodField('get_toilet_url', read_only=True)
+
+    validators = [
+        UniqueTogetherValidator(
+            queryset=Rating.objects.all(),
+            fields=['user', 'toilet']
+        )
+    ]
 
     class Meta:
         model = Rating
