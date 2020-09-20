@@ -5,11 +5,8 @@ from Toilets4LondonAPI.toilets4london.permissions import IsAdminUserOrReadOnly, 
 from rest_framework import permissions, viewsets, status, filters, renderers, generics
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
 
 from django_filters.rest_framework import DjangoFilterBackend
-
-from django.contrib.auth.models import User
 from django.urls import reverse
 
 
