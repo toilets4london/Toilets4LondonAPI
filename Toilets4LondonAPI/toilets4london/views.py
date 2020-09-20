@@ -1,10 +1,11 @@
-from Toilets4LondonAPI.toilets4london.models import Toilet, Rating
+from Toilets4LondonAPI.toilets4london.models import Toilet, Rating, Toilets4LondonUser
 from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, UserSerializer, RatingSerializer
 from Toilets4LondonAPI.toilets4london.permissions import IsAdminUserOrReadOnly, IsReviewerOrAdmin
 
 from rest_framework import permissions, viewsets, status, filters, renderers, generics
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -32,15 +33,16 @@ class ToiletViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+
     @action(detail=False, methods=['get'], renderer_classes=[renderers.TemplateHTMLRenderer])
     def view_map(self, request):
         queryset = Toilet.objects.all()
         return Response({"toilets": queryset,"base_url": reverse('toilet-list')}, template_name='toilet_map.html')
 
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAdminUser]
-    queryset = User.objects.all()
+    queryset = Toilets4LondonUser.objects.all()
     serializer_class = UserSerializer
 
 
@@ -51,3 +53,9 @@ class RatingViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    @action(detail=False, methods=['get'])
+    def my_ratings(self, request):
+        queryset = Rating.objects.filter(user=request.user)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

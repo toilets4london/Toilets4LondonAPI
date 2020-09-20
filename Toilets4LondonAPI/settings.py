@@ -16,6 +16,8 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -24,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '4e179d*tr@x+dz8mow05$!wnq5zw7_3%v=h5d)615)zvf$9-tk'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -40,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'djoser',
     'django_filters',
     'Toilets4LondonAPI.toilets4london'
 ]
@@ -135,4 +138,12 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 30
+}
+
+AUTH_USER_MODEL = 'toilets4london.Toilets4LondonUser'
+
+DJOSER = {
+    'SERIALIZERS': {
+        'user': 'Toilets4LondonAPI.toilets4london.serializers.UserSerializer',
+    }
 }

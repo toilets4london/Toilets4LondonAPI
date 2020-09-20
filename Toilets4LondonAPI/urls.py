@@ -20,6 +20,7 @@ urlpatterns = [
 ]
 
 urlpatterns += [
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.authtoken')),
     path('api-auth/', include('rest_framework.urls')),
-    path('api-token-auth/', authviews.obtain_auth_token, name='api-token-auth'),
 ]
