@@ -14,7 +14,7 @@ from django.urls import reverse
 class ToiletViewSet(viewsets.ModelViewSet):
     queryset = Toilet.objects.all()
     serializer_class = ToiletSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly, permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['borough', 'latitude','longitude','name']
     search_fields = ['address', 'name', 'borough']
