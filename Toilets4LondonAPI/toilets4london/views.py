@@ -1,6 +1,6 @@
-from Toilets4LondonAPI.toilets4london.models import Toilet, Rating, Toilets4LondonUser
-from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, UserSerializer, RatingSerializer
-from Toilets4LondonAPI.toilets4london.permissions import IsAdminUserOrReadOnly, IsReviewerOrAdmin
+from Toilets4LondonAPI.toilets4london.models import Toilet, Rating
+from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, RatingSerializer
+from Toilets4LondonAPI.toilets4london.permissions import IsOwnerOrReadOnly
 
 from rest_framework import permissions, viewsets, status, filters, renderers, generics
 from rest_framework.response import Response
@@ -14,8 +14,7 @@ from django.urls import reverse
 class ToiletViewSet(viewsets.ModelViewSet):
     queryset = Toilet.objects.all()
     serializer_class = ToiletSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                          IsAdminUserOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['borough', 'latitude','longitude','name']
     search_fields = ['address', 'name', 'borough']
@@ -37,22 +36,13 @@ class ToiletViewSet(viewsets.ModelViewSet):
         return Response({"toilets": queryset,"base_url": reverse('toilet-list')}, template_name='toilet_map.html')
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAdminUser]
-    queryset = Toilets4LondonUser.objects.all()
-    serializer_class = UserSerializer
-
-
 class RatingViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsReviewerOrAdmin]
-    queryset = Rating.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = RatingSerializer
+
+    def get_queryset(self):
+        return Rating.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-    @action(detail=False, methods=['get'])
-    def my_ratings(self, request):
-        queryset = Rating.objects.filter(user=request.user)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
