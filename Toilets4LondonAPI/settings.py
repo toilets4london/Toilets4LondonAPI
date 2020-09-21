@@ -20,13 +20,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '4e179d*tr@x+dz8mow05$!wnq5zw7_3%v=h5d)615)zvf$9-tk'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+
+if DEBUG:
+    with open("testsecretkey.txt") as keyfile:
+        SECRET_KEY = keyfile.read()
+else:
+    SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 # Application definition
@@ -40,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'djoser',
     'django_filters',
     'Toilets4LondonAPI.toilets4london'
 ]
@@ -135,4 +139,12 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 30
+}
+
+AUTH_USER_MODEL = 'toilets4london.Toilets4LondonUser'
+
+DJOSER = {
+    'SERIALIZERS': {
+        'user': 'Toilets4LondonAPI.toilets4london.serializers.UserSerializer',
+    }
 }
