@@ -4,5 +4,6 @@ django-filter==2.3.0
 django-templated-mail==1.1.1
 djangorestframework==3.11.1
 djoser==2.0.5
+python-dotenv==0.14.0
 pytz==2020.1
 sqlparse==0.3.1
