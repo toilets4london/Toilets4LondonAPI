@@ -1,4 +1,4 @@
-from rest_framework import serializers
+from rest_framework import serializers, validators
 from Toilets4LondonAPI.toilets4london.models import Toilet, Rating, Toilets4LondonUser
 from collections import Counter
 from rest_framework.reverse import reverse
@@ -41,7 +41,7 @@ class RatingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Rating
-        fields = ['toilet', 'toilet_url', 'user', 'rating']
+        fields = ['id','toilet', 'toilet_url', 'user', 'rating']
 
     def get_toilet_url(self, obj):
         request = self.context['request']

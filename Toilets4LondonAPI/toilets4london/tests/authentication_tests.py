@@ -39,6 +39,11 @@ class AuthenticationTests(APITestCase):
     def api_authentication_admin(self):
         self.client.force_login(self.admin_user)
 
+    def create_toilet(self):
+        self.api_authentication_admin()
+        self.client.post('/toilets/', faketoilet)
+        self.client.logout()
+
     def test_toilet_list_unauthenticated(self):
         response = self.client.get('/toilets/')
         self.assertEqual(response.status_code,status.HTTP_200_OK)
@@ -58,20 +63,29 @@ class AuthenticationTests(APITestCase):
         response = self.client.get("/auth/users/2/")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_create_review(self):
+    def test_admin_post_toilet(self):
         self.api_authentication_admin()
         toilet_response = self.client.post('/toilets/', faketoilet)
         self.assertEqual(toilet_response.status_code, status.HTTP_201_CREATED)
         self.client.logout()
+
+    def test_other_post_toilet(self):
+        self.api_authentication_user2()
+        toilet_response = self.client.post('/toilets/', faketoilet)
+        self.assertEqual(toilet_response.status_code, status.HTTP_201_CREATED)
+
+    def test_unauthenticated_post_toilet(self):
+        toilet_response = self.client.post('/toilets/', faketoilet)
+        self.assertEqual(toilet_response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_create_review(self):
+        self.create_toilet()
         self.api_authentication_user1()
         rating_response = self.client.post('/ratings/', fakerating)
         self.assertEqual(rating_response.status_code, status.HTTP_201_CREATED)
 
     def test_read_own_rating(self):
-        self.api_authentication_admin()
-        toilet_response = self.client.post('/toilets/', faketoilet)
-        self.assertEqual(toilet_response.status_code, status.HTTP_201_CREATED)
-        self.client.logout()
+        self.create_toilet()
         self.api_authentication_user1()
         self.client.post('/ratings/', fakerating)
         rating_detail_response = self.client.get('/ratings/1/')
@@ -79,11 +93,27 @@ class AuthenticationTests(APITestCase):
         self.assertEqual(rating_detail_response.data['user'], 2)
 
     def test_read_others_rating(self):
-        self.api_authentication_admin()
-        toilet_response = self.client.post('/toilets/', faketoilet)
-        self.assertEqual(toilet_response.status_code, status.HTTP_201_CREATED)
-        self.client.post('/ratings/', fakerating)
-        self.client.logout()
+        self.create_toilet()
         self.api_authentication_user1()
+        self.client.post('/ratings/', fakerating)
+        self.api_authentication_user2()
         rating_detail_response = self.client.get('/ratings/1/')
         self.assertEqual(rating_detail_response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_list_ratings_unauthenticated(self):
+        response = self.client.get('/ratings/')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_list_ratings_authenticated(self):
+        self.api_authentication_user1()
+        response = self.client.get('/ratings/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_only_can_see_own_ratings(self):
+        self.create_toilet()
+        self.api_authentication_user1()
+        self.client.post('/ratings/', fakerating)
+        self.api_authentication_user2()
+        self.client.post('/ratings/', fakerating)
+        response = self.client.get('/ratings/')
+        self.assertEqual(response.data['count'], 1)
