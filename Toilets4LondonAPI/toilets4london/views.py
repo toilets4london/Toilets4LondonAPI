@@ -1,6 +1,7 @@
 from Toilets4LondonAPI.toilets4london.models import Toilet, Rating
 from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, RatingSerializer
 from Toilets4LondonAPI.toilets4london.permissions import IsOwnerOrReadOnly
+from Toilets4LondonAPI.toilets4london.pagination import  LargeResultsSetPagination
 
 from rest_framework import permissions, viewsets, status, filters, renderers, generics
 from rest_framework.response import Response
@@ -19,6 +20,7 @@ class ToiletViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['borough', 'latitude','longitude','name']
     search_fields = ['address', 'name', 'borough']
+    pagination_class = LargeResultsSetPagination
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
