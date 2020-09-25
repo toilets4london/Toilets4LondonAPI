@@ -1,0 +1,1 @@
+Django will place static files here when collectstatic is called.
