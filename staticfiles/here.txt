@@ -1,1 +1,2 @@
 Django will place static files here when collectstatic is called.
+This is just a placeholder.
