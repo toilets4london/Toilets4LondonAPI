@@ -31,6 +31,17 @@ if DEBUG:
 else:
     SECRET_KEY = os.getenv("SECRET_KEY")
 
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp-relay.sendinblue.com'
+    EMAIL_PORT = '587'
+    EMAIL_HOST_USER = 'nina@toilets4london.com'
+    EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASSWORD")
+    EMAIL_USE_TLS = True
+    EMAIL_USE_SSL = False
+
 
 # Application definition
 
@@ -153,3 +164,5 @@ DJOSER = {
 if not DEBUG:
     import django_heroku
     django_heroku.settings(locals())
+
+LOGIN_URL = '/admin/login/'

@@ -4,7 +4,7 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from collections import Counter
 from django.db.models import Avg
-from django.contrib.admin import AdminSite
+
 
 class ToiletResource(resources.ModelResource):
     class Meta:
@@ -27,6 +27,18 @@ class ToiletAdmin(ImportExportModelAdmin):
     resource_class = ToiletResource
     list_filter = ('borough', 'owner', 'wheelchair')
     search_fields = ('id', 'name', 'address')
+    readonly_fields = [
+        'id','owner'
+    ]
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        is_superuser = request.user.is_superuser
+        is_owner = (request.user == obj.owner)
+        if not (is_superuser or is_owner):
+            for field in form.base_fields:
+                field.disabled = True
+        return form
 
     def ratings(self, obj):
         ratings = Rating.objects.filter(toilet=obj)
@@ -47,13 +59,29 @@ class RatingAdmin(admin.ModelAdmin):
 class Toilets4LondonUserAdmin(admin.ModelAdmin):
     resource_class = Toilets4LondonUserResource
 
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        is_superuser = request.user.is_superuser
+        disabled_fields = set()
 
-# Separate Toilet Owner Admin Site
+        if not is_superuser:
+            disabled_fields |= {
+                'username',
+                'is_superuser',
+                'user_permissions'
+            }
 
+        # Prevent non-superusers from editing their own permissions
+        if not is_superuser and obj is not None and obj == request.user:
+            disabled_fields |= {
+                'is_staff',
+                'is_superuser',
+                'groups',
+                'user_permissions',
+            }
 
-class ToiletOwnerAdminSite(AdminSite):
-    site_header = 'Manage your toilets'
+        for f in disabled_fields:
+            if f in form.base_fields:
+                form.base_fields[f].disabled = True
 
-
-toiletowneradmin = ToiletOwnerAdminSite(name='toiletowneradmin')
-toiletowneradmin.register(Toilet, ToiletAdmin)
+        return form
