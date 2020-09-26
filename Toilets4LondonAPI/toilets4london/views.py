@@ -1,7 +1,7 @@
 from Toilets4LondonAPI.toilets4london.models import Toilet, Rating
 from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, RatingSerializer
 from Toilets4LondonAPI.toilets4london.permissions import IsOwnerOrReadOnly
-from Toilets4LondonAPI.toilets4london.pagination import  LargeResultsSetPagination
+from Toilets4LondonAPI.toilets4london.pagination import LargeResultsSetPagination
 
 from rest_framework import permissions, viewsets, status, filters, renderers, generics
 from rest_framework.response import Response
