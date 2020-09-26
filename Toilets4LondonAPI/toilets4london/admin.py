@@ -4,7 +4,7 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from collections import Counter
 from django.db.models import Avg
-
+from django.contrib.admin import AdminSite
 
 class ToiletResource(resources.ModelResource):
     class Meta:
@@ -46,3 +46,14 @@ class RatingAdmin(admin.ModelAdmin):
 @admin.register(Toilets4LondonUser)
 class Toilets4LondonUserAdmin(admin.ModelAdmin):
     resource_class = Toilets4LondonUserResource
+
+
+# Separate Toilet Owner Admin Site
+
+
+class ToiletOwnerAdminSite(AdminSite):
+    site_header = 'Manage your toilets'
+
+
+toiletowneradmin = ToiletOwnerAdminSite(name='toiletowneradmin')
+toiletowneradmin.register(Toilet, ToiletAdmin)
