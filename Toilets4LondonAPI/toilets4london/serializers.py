@@ -1,4 +1,4 @@
-from rest_framework import serializers, validators
+from rest_framework import serializers
 from Toilets4LondonAPI.toilets4london.models import Toilet, Rating, Toilets4LondonUser
 from collections import Counter
 from rest_framework.reverse import reverse
