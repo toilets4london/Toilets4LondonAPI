@@ -41,7 +41,7 @@ else:
     EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASSWORD")
     EMAIL_USE_TLS = True
     EMAIL_USE_SSL = False
-
+    DEFAULT_FROM_EMAIL = 'donotreply@toilets4london.com'
 
 # Application definition
 
