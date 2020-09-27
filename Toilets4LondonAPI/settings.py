@@ -57,10 +57,12 @@ INSTALLED_APPS = [
     'djoser',
     'django_filters',
     'import_export',
+    'corsheaders',
     'Toilets4LondonAPI.toilets4london'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -166,3 +168,9 @@ if not DEBUG:
     django_heroku.settings(locals())
 
 LOGIN_URL = '/admin/login/'
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000/",
+    "http://localhost:8080",
+    "http://127.0.0.1:8000"
+]
