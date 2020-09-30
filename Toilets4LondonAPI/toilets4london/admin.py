@@ -1,5 +1,5 @@
 from django.contrib import admin
-from Toilets4LondonAPI.toilets4london.models import Toilet, Toilets4LondonUser, Rating
+from Toilets4LondonAPI.toilets4london.models import Toilet, Toilets4LondonUser, Rating, Report
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from collections import Counter
@@ -16,6 +16,11 @@ class RatingResource(resources.ModelResource):
         model = Rating
 
 
+class ReportResource(resources.ModelResource):
+    class Meta:
+        model = Rating
+
+
 class Toilets4LondonUserResource(resources.ModelResource):
     class Meta:
         model = Toilets4LondonUser
@@ -23,27 +28,45 @@ class Toilets4LondonUserResource(resources.ModelResource):
 
 @admin.register(Toilet)
 class ToiletAdmin(ImportExportModelAdmin):
-    list_display = ('id', 'name','address', 'borough','owner','opening_hours','wheelchair', 'ratings','average_rating')
+    list_display = ('id',
+                    'name',
+                    'address',
+                    'borough',
+                    'owner',
+                    'opening_hours',
+                    'wheelchair',
+                    'baby_change',
+                    'ratings',
+                    'average_rating',
+                    'reports')
     resource_class = ToiletResource
-    list_filter = ('borough', 'owner', 'wheelchair')
+    list_filter = ('borough', 'owner', 'wheelchair', 'baby_change')
     search_fields = ('id', 'name', 'address')
-    readonly_fields = [
-        'id','owner'
-    ]
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        is_superuser = request.user.is_superuser
-        is_owner = (request.user == obj.owner)
-        if not (is_superuser or is_owner):
-            for field in form.base_fields:
-                field.disabled = True
+        if obj is not None:
+            is_superuser = request.user.is_superuser
+            is_owner = (request.user == obj.owner)
+            if not (is_superuser or is_owner):
+                for field in form.base_fields:
+                    form.base_fields[field].disabled = True
         return form
 
     def ratings(self, obj):
         ratings = Rating.objects.filter(toilet=obj)
         ratings = Counter(ratings.values_list("rating", flat=True))
         return {f"{star}_star": count for star, count in ratings.items()}
+
+    def reports(self, obj):
+        reports = Report.objects.filter(toilet=obj)
+        reasons = Counter(reports.values_list("reason", flat=True))
+        return {f"Reported_{problem}": count for problem, count in reasons.items()}
+
+    def report_messages(self, obj):
+        reports = Report.objects.filter(toilet=obj)
+        messages = reports.values_list("other_description", flat=True)
+        return [m for m in messages]
 
     def average_rating(self, obj):
         result = Rating.objects.filter(toilet=obj).aggregate(Avg("rating"))
@@ -52,7 +75,51 @@ class ToiletAdmin(ImportExportModelAdmin):
 
 @admin.register(Rating)
 class RatingAdmin(admin.ModelAdmin):
+
+    date_hierarchy = 'date'
     resource_class = RatingResource
+    list_display = ('id',
+                    'user',
+                    'toilet',
+                    'rating',
+                    'date')
+    list_filter = ('toilet', 'user')
+    search_fields = ('toilet', 'user')
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if obj is not None:
+            is_superuser = request.user.is_superuser
+            is_rater = (request.user == obj.user)
+            if not (is_superuser or is_rater):
+                for field in form.base_fields:
+                    form.base_fields[field].disabled = True
+        return form
+
+
+
+@admin.register(Report)
+class ReportAdmin(admin.ModelAdmin):
+    date_hierarchy = 'date'
+    resource_class = ReportResource
+    list_display = ('id',
+                    'user',
+                    'toilet',
+                    'reason',
+                    'other_description',
+                    'date')
+    list_filter = ('toilet', 'user')
+    search_fields = ('toilet', 'user','other_description')
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if obj is not None:
+            is_superuser = request.user.is_superuser
+            is_reporter = (request.user == obj.user)
+            if not (is_superuser or is_reporter):
+                for field in form.base_fields:
+                    form.base_fields[field].disabled = True
+        return form
 
 
 @admin.register(Toilets4LondonUser)

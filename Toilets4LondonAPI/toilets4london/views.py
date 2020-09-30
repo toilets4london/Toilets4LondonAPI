@@ -1,5 +1,5 @@
-from Toilets4LondonAPI.toilets4london.models import Toilet, Rating
-from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, RatingSerializer
+from Toilets4LondonAPI.toilets4london.models import Toilet, Rating, Report
+from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, RatingSerializer, ReportSerializer
 from Toilets4LondonAPI.toilets4london.permissions import IsOwnerOrReadOnly
 from Toilets4LondonAPI.toilets4london.pagination import LargeResultsSetPagination
 
@@ -44,7 +44,7 @@ class RatingViewSet(viewsets.ModelViewSet):
     serializer_class = RatingSerializer
 
     def get_queryset(self):
-        return Rating.objects.filter(user=self.request.user)
+        return Rating.objects.filter(user=self.request.user).order_by('date')
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -60,3 +60,22 @@ class RatingViewSet(viewsets.ModelViewSet):
             return Response({"Error":"Cannot review toilet twice"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class ReportViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ReportSerializer
+
+    def get_queryset(self):
+        return Report.objects.filter(user=self.request.user).order_by('date')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        except IntegrityError:
+            return Response({"Error":"Cannot report toilet twice"}, status=status.HTTP_400_BAD_REQUEST)
