@@ -17,6 +17,12 @@ fakerating = {
     "rating": 5
 }
 
+fakereport = {
+    "toilet": 1,
+    "reason": "LQ",
+    "other_description": "Some random description"
+}
+
 
 class AuthenticationTests(APITestCase):
 
@@ -116,4 +122,44 @@ class AuthenticationTests(APITestCase):
         self.api_authentication_user2()
         self.client.post('/ratings/', fakerating)
         response = self.client.get('/ratings/')
+        self.assertEqual(response.data['count'], 1)
+
+    def test_create_report(self):
+        self.create_toilet()
+        self.api_authentication_user1()
+        report_response = self.client.post('/reports/', fakereport)
+        self.assertEqual(report_response.status_code, status.HTTP_201_CREATED)
+
+    def test_read_own_report(self):
+        self.create_toilet()
+        self.api_authentication_user1()
+        self.client.post('/reports/', fakereport)
+        report_detail_response = self.client.get('/reports/1/')
+        self.assertEqual(report_detail_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(report_detail_response.data['user'], 2)
+
+    def test_read_others_report(self):
+        self.create_toilet()
+        self.api_authentication_user1()
+        self.client.post('/reports/', fakereport)
+        self.api_authentication_user2()
+        report_detail_response = self.client.get('/reports/1/')
+        self.assertEqual(report_detail_response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_list_reports_unauthenticated(self):
+        response = self.client.get('/reports/')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_list_reports_authenticated(self):
+        self.api_authentication_user1()
+        response = self.client.get('/reports/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_only_can_see_own_reports(self):
+        self.create_toilet()
+        self.api_authentication_user1()
+        self.client.post('/reports/', fakereport)
+        self.api_authentication_user2()
+        self.client.post('/reports/', fakereport)
+        response = self.client.get('/reports/')
         self.assertEqual(response.data['count'], 1)

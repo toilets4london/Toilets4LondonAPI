@@ -27,6 +27,7 @@ class Toilet(models.Model):
     opening_hours = models.CharField(max_length=500, blank=True, default='')
     name = models.CharField(max_length=500, blank=True, default='')
     wheelchair = models.BooleanField(blank=True, default=False)
+    baby_change = models.BooleanField(blank=True, default=False)
 
     def __str__(self):
         if len(self.name) > 0:
@@ -43,6 +44,50 @@ class Rating(models.Model):
             'user',
             'toilet']
 
-    user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user')
-    toilet = models.ForeignKey(Toilet, on_delete=models.CASCADE, related_name='toilet')
+    user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='ratings')
+    toilet = models.ForeignKey(Toilet, on_delete=models.CASCADE, related_name='ratings')
     rating = models.PositiveSmallIntegerField(choices=SCORE_CHOICES, blank=False)
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return "toilet %s rated %s"%(self.toilet.__str__(), self.date.strftime("%m/%d/%Y, %H:%M:%S"))
+
+
+class Report(models.Model):
+
+    DOES_NOT_EXIST = 'DNE'
+    NO_TOILET_PAPER = 'NTP'
+    LONG_QUEUE = 'LQ'
+    NO_HANDWASHING = 'NH'
+    BROKEN_OR_BLOCKED = 'BOB'
+    NOT_CLEAN = 'NC'
+    OTHER = "O"
+
+    REASON_CHOICES = [
+        (DOES_NOT_EXIST, 'Toilet_does_not_exist'),
+        (NO_TOILET_PAPER, 'No_toilet_paper'),
+        (LONG_QUEUE, 'Long_queue'),
+        (NO_HANDWASHING, 'Insufficient_hand_washing_facilities'),
+        (BROKEN_OR_BLOCKED, 'Toilet_blocked_or_broken'),
+        (NOT_CLEAN, 'Facilities_not_clean'),
+        (OTHER, 'Other'),
+    ]
+
+    reason = models.CharField(
+        max_length=3,
+        choices=REASON_CHOICES,
+        blank=False
+    )
+
+    other_description = models.TextField(blank=True, default="")
+    user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reports')
+    toilet = models.ForeignKey(Toilet, on_delete=models.CASCADE, related_name='reports')
+    date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [
+            'user',
+            'toilet']
+
+    def __str__(self):
+        return "toilet %s reported %s" % (self.toilet.__str__(), self.date.strftime("%m/%d/%Y, %H:%M:%S"))
