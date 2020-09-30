@@ -36,3 +36,27 @@ class ToiletTests(APITestCase):
         self.assertIsNone(response.data['next'])
         response = self.client.get('/toilets/')
         self.assertIsNotNone(response.data['next'])
+
+    def test_reverse_geocoding(self):
+        user = Toilets4LondonUser.objects.create(email="test", password="banana")
+        toilet = Toilet.objects.create(latitude=51.4087329, longitude=-0.3323747, owner=user)
+        self.assertTrue("Hampton Court Road" in toilet.address)
+        self.assertEqual(toilet.borough, "Richmond upon Thames")
+
+    def test_no_reverse_geocoding_when_address_set(self):
+        user = Toilets4LondonUser.objects.create(email="test", password="banana")
+        toilet = Toilet.objects.create(latitude=51.4087329, longitude=-0.3323747, owner=user, address="random")
+        self.assertEqual(toilet.address, "random")
+        self.assertEqual(toilet.borough, "")
+
+    def test_borough_added_if_possible(self):
+        user = Toilets4LondonUser.objects.create(email="test", password="banana")
+        toilet = Toilet.objects.create(latitude=51.4087329, longitude=-0.3323747, owner=user, address="a place in Camden")
+        self.assertEqual(toilet.address, "a place in Camden")
+        self.assertEqual(toilet.borough, "Camden")
+
+    def test_borough_not_changed_if_present(self):
+        user = Toilets4LondonUser.objects.create(email="test", password="banana")
+        toilet = Toilet.objects.create(latitude=51.4087329, longitude=-0.3323747, owner=user, borough="Random")
+        self.assertTrue("Hampton Court Road" in toilet.address)
+        self.assertEqual(toilet.borough, "Random")
