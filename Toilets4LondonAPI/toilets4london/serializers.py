@@ -69,3 +69,7 @@ class ReportSerializer(serializers.ModelSerializer):
     def get_toilet_url(self, obj):
         request = self.context['request']
         return reverse('toilet-detail', args=[obj.toilet.pk], request=request)
+
+
+class CustomTokenSerializer(serializers.Serializer):
+    token = serializers.CharField()

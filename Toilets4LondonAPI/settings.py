@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # Set DEBUG=False before committing to master!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["0.0.0.0", "localhost", "127.0.0.1"]
 
@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'django_filters',
     'import_export',
     'corsheaders',
+    'django_rest_passwordreset',
     'Toilets4LondonAPI.toilets4london'
 ]
 

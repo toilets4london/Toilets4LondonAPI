@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 from django.contrib import admin
 from Toilets4LondonAPI.toilets4london import views
 from django.contrib.auth import views as auth_views
+from django.conf.urls import url, include
 
 
 # Create a router and register our viewsets with it.
@@ -47,4 +48,5 @@ urlpatterns += [
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
     path('api-auth/', include('rest_framework.urls')),
+    path('reset-password/', include('django_rest_passwordreset.urls', namespace='password_reset'))
 ]
