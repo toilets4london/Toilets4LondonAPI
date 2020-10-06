@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'django_filters',
     'import_export',
     'corsheaders',
+    'django_rest_passwordreset',
     'Toilets4LondonAPI.toilets4london'
 ]
 

@@ -3,6 +3,34 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.translation import ugettext_lazy as _
 from .managers import Toilets4LondonUserManager
 from Toilets4LondonAPI.settings import AUTH_USER_MODEL
+import ssl
+import certifi
+import geopy.geocoders as geo
+
+
+def geocode(location_name):
+    ctx = ssl.create_default_context(cafile=certifi.where())
+    geo.options.default_ssl_context = ctx
+    geolocator = geo.Nominatim(user_agent="toilets4london")
+    location = geolocator.geocode(location_name)
+    return location.latitude, location.longitude
+
+
+def reverse_geocode(lat,long):
+    ctx = ssl.create_default_context(cafile=certifi.where())
+    geo.options.default_ssl_context = ctx
+    geolocator = geo.Nominatim(user_agent="toilets4london")
+    location = geolocator.reverse("%s, %s"%(str(lat),str(long)))
+    return location.address
+
+
+def get_borough(address):
+    with open("Toilets4LondonAPI/toilets4london/boroughs.txt", "r") as borough_list:
+        boroughs = borough_list.read().split(", ")
+        for b in boroughs:
+            if b in address:
+                return b
+    return ""
 
 
 class Toilets4LondonUser(AbstractUser):
@@ -28,6 +56,14 @@ class Toilet(models.Model):
     name = models.CharField(max_length=500, blank=True, default='')
     wheelchair = models.BooleanField(blank=True, default=False)
     baby_change = models.BooleanField(blank=True, default=False)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            if not self.address:
+                self.address = reverse_geocode(self.latitude, self.longitude)
+            if not self.borough:
+                self.borough = get_borough(self.address)
+        super(Toilet, self).save(*args, **kwargs)
 
     def __str__(self):
         if len(self.name) > 0:
