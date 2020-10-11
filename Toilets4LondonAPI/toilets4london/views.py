@@ -10,6 +10,10 @@ from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from django.urls import reverse
 from django.db.utils import IntegrityError
+from django.core.mail import EmailMultiAlternatives
+from django.dispatch import receiver
+
+from django_rest_passwordreset.signals import reset_password_token_created
 
 
 # This viewset automatically provides `list`, `create`, `retrieve`, `update` and `destroy` actions.
@@ -81,13 +85,6 @@ class ReportViewSet(viewsets.ModelViewSet):
             return Response({"Error":"Cannot report toilet twice"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-from django.core.mail import EmailMultiAlternatives
-from django.dispatch import receiver
-from django.template.loader import render_to_string
-from django.urls import reverse
-
-from django_rest_passwordreset.signals import reset_password_token_created
-
 @receiver(reset_password_token_created)
 def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
     """
@@ -101,26 +98,25 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     :return:
     """
     # send an e-mail to the user
-    context = {
-        'current_user': reset_password_token.user,
-        'username': reset_password_token.user.username,
-        'email': reset_password_token.user.email,
-        'reset_password_url': "{}?token={}".format(
-            instance.request.build_absolute_uri(reverse('password_reset:reset-password-confirm')),
-            reset_password_token.key)
-    }
+    # context = {
+    #     'current_user': reset_password_token.user,
+    #     'username': reset_password_token.user.username,
+    #     'email': reset_password_token.user.email,
+    #     'reset_password_url': "{}?token={}".format(
+    #         instance.request.build_absolute_uri(reverse('password_reset:reset-password-confirm')),
+    #         reset_password_token.key)
+    # }
 
     msg = EmailMultiAlternatives(
         # title:
-        "Password Reset for {title}".format(title="Some website title"),
+        "Reset your Toilets4London password",
         # message:
         "{}?token={}".format(
             instance.request.build_absolute_uri(reverse('password_reset:reset-password-confirm')),
             reset_password_token.key),
         # from:
-        "noreply@somehost.local",
+        "noreply@toilets4london.com",
         # to:
         [reset_password_token.user.email]
     )
-    # msg.attach_alternative(email_html_message, "text/html")
     msg.send()
