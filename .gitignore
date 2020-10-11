@@ -18,7 +18,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-testsecretkey.txt
 
 # Local
 */*/.DS_Store
