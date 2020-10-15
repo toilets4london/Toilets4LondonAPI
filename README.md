@@ -20,6 +20,8 @@
 # Endpoints used by [mobile app](https://github.com/toilets4london/ToiletApp/)
 
 - GET all toilets `/toilets/?page_size=1000` (increase `page_size` if there are > 1000 toilets in the database)
+- GET my ratings HEADERS { 'Authorization' : *token [valid api token]* } `/ratings/`
+- GET my reports HEADERS { 'Authorization' : *token [valid api token]* } `/reports/`
 - POST sign up { 'email' : *your email* , 'password' : *your password* } `/auth/users/`
 - POST obtain api token { 'email' : *your email* , 'password' : *your password* } `/auth/token/login/`
 - POST star rating { 'toilet' : *valid toilet id* , 'rating': *1-5 star rating* } HEADERS { 'Authorization' : *token [valid api token]* } `/ratings/`
