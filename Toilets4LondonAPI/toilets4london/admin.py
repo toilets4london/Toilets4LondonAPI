@@ -32,7 +32,7 @@ class ToiletAdmin(ImportExportModelAdmin):
                     'name',
                     'address',
                     'borough',
-                    'owner',
+                    # 'owner',
                     'opening_hours',
                     'wheelchair',
                     'baby_change',
