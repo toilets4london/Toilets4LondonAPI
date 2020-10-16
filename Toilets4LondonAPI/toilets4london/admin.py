@@ -33,6 +33,7 @@ class ToiletAdmin(ImportExportModelAdmin):
                     'address',
                     'borough',
                     # 'owner',
+                    'data_source',
                     'opening_hours',
                     'wheelchair',
                     'baby_change',
@@ -40,7 +41,7 @@ class ToiletAdmin(ImportExportModelAdmin):
                     'average_rating',
                     'reports')
     resource_class = ToiletResource
-    list_filter = ('borough', 'owner', 'wheelchair', 'baby_change')
+    list_filter = ('borough', 'owner', 'wheelchair', 'baby_change', 'data_source')
     search_fields = ('id', 'name', 'address')
 
     def get_form(self, request, obj=None, **kwargs):

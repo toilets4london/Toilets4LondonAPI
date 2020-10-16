@@ -51,6 +51,7 @@ class Toilet(models.Model):
     borough = models.CharField(max_length=100, blank=True, default='')
     latitude = models.FloatField()
     longitude = models.FloatField()
+    data_source = models.CharField(max_length=500, blank=True, default='')
     owner = models.ForeignKey(AUTH_USER_MODEL, related_name='toilets', on_delete=models.CASCADE)
     opening_hours = models.CharField(max_length=500, blank=True, default='')
     name = models.CharField(max_length=500, blank=True, default='')
