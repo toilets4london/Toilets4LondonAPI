@@ -2,6 +2,7 @@ import json
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 from Toilets4LondonAPI.toilets4london.models import Toilet, Toilets4LondonUser
+from django.core.exceptions import ValidationError
 
 
 class ToiletTests(APITestCase):
@@ -36,6 +37,28 @@ class ToiletTests(APITestCase):
         self.assertIsNone(response.data['next'])
         response = self.client.get('/toilets/')
         self.assertIsNotNone(response.data['next'])
+
+    def test_geocoding(self):
+        user = Toilets4LondonUser.objects.create(email="test", password="banana")
+        toilet = Toilet.objects.create(address="Hampton Court Road, Richmond", owner=user)
+        self.assertEqual(51.4124879, toilet.latitude)
+        self.assertEqual(-0.3587922, toilet.longitude)
+        self.assertTrue("Richmond" in toilet.borough)
+
+    def test_geocoding_invalid_address(self):
+        user = Toilets4LondonUser.objects.create(email="test", password="banana")
+        with self.assertRaises(ValidationError):
+            Toilet.objects.create(address="Bananarama in pyjamas", owner=user)
+
+    def test_reverse_geocoding_invalid_coords(self):
+        user = Toilets4LondonUser.objects.create(email="test", password="banana")
+        with self.assertRaises(ValidationError):
+            Toilet.objects.create(latitude=0,longitude=4545, owner=user)
+
+    def test_error_when_no_location_info(self):
+        user = Toilets4LondonUser.objects.create(email="test", password="banana")
+        with self.assertRaises(ValidationError):
+            Toilet.objects.create(owner=user, name="Random toilet with no location")
 
     def test_reverse_geocoding(self):
         user = Toilets4LondonUser.objects.create(email="test", password="banana")

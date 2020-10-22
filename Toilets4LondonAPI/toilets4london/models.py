@@ -1,4 +1,5 @@
 from django.db import models
+from django.forms import ValidationError
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import ugettext_lazy as _
 from .managers import Toilets4LondonUserManager
@@ -49,8 +50,8 @@ class Toilets4LondonUser(AbstractUser):
 class Toilet(models.Model):
     address = models.CharField(max_length=500, blank=True, default='')
     borough = models.CharField(max_length=100, blank=True, default='')
-    latitude = models.FloatField()
-    longitude = models.FloatField()
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
     data_source = models.CharField(max_length=500, blank=True, default='')
     owner = models.ForeignKey(AUTH_USER_MODEL, related_name='toilets', on_delete=models.CASCADE)
     opening_hours = models.CharField(max_length=500, blank=True, default='')
@@ -58,13 +59,34 @@ class Toilet(models.Model):
     wheelchair = models.BooleanField(blank=True, default=False)
     baby_change = models.BooleanField(blank=True, default=False)
 
+    class Meta:
+        constraints = [
+            models.CheckConstraint(name="Address or Coords provided", check=(
+                    (models.Q(latitude__isnull=False) and models.Q(longitude__isnull=False)) or models.Q(address__isblank=False)
+            ))
+        ]
+
     def save(self, *args, **kwargs):
+        nocoords = not self.latitude or not self.longitude
+        noaddr = not self.address
+        neither = nocoords and noaddr
         if not self.id:
-            if not self.address:
-                self.address = reverse_geocode(self.latitude, self.longitude)
+            if neither:
+                raise ValidationError("Must have at least an address or cooordinates")
+            elif nocoords:
+                try:
+                    self.latitude, self.longitude = geocode(self.address)
+                except:
+                    raise ValidationError("Invalid cooordinates")
+            elif noaddr:
+                try:
+                    self.address = reverse_geocode(self.latitude, self.longitude)
+                except:
+                    raise ValidationError("Invalid address")
             if not self.borough:
                 self.borough = get_borough(self.address)
         super(Toilet, self).save(*args, **kwargs)
+
 
     def __str__(self):
         if len(self.name) > 0:
