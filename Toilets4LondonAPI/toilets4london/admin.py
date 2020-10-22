@@ -143,3 +143,12 @@ class Toilets4LondonUserAdmin(admin.ModelAdmin):
                 form.base_fields[f].disabled = True
 
         return form
+
+    def save_model(self, request, obj, form, change):
+        if obj.id:
+            orig_obj = Toilets4LondonUser.objects.get(id=obj.id)
+            if obj.password != orig_obj.password:
+                obj.set_password(obj.password)
+        else:
+            obj.set_password(obj.password)
+        obj.save()
