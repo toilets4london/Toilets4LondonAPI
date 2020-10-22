@@ -3,7 +3,7 @@ from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, Ratin
 from Toilets4LondonAPI.toilets4london.permissions import IsOwnerOrReadOnly
 from Toilets4LondonAPI.toilets4london.pagination import LargeResultsSetPagination
 
-from rest_framework import permissions, viewsets, status, filters, renderers, generics
+from rest_framework import permissions, viewsets, status, filters, renderers
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
@@ -16,7 +16,6 @@ from django.dispatch import receiver
 from django_rest_passwordreset.signals import reset_password_token_created
 
 
-# This viewset automatically provides `list`, `create`, `retrieve`, `update` and `destroy` actions.
 class ToiletViewSet(viewsets.ModelViewSet):
     queryset = Toilet.objects.all()
     serializer_class = ToiletSerializer
@@ -35,7 +34,6 @@ class ToiletViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
 
     @action(detail=False, methods=['get'], renderer_classes=[renderers.TemplateHTMLRenderer])
     def view_map(self, request):
@@ -97,23 +95,11 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     :param kwargs:
     :return:
     """
-    # send an e-mail to the user
-    # context = {
-    #     'current_user': reset_password_token.user,
-    #     'username': reset_password_token.user.username,
-    #     'email': reset_password_token.user.email,
-    #     'reset_password_url': "{}?token={}".format(
-    #         instance.request.build_absolute_uri(reverse('password_reset:reset-password-confirm')),
-    #         reset_password_token.key)
-    # }
-
     msg = EmailMultiAlternatives(
         # title:
         "Reset your Toilets4London password",
         # message:
-        "{}?token={}".format(
-            instance.request.build_absolute_uri(reverse('password_reset:reset-password-confirm')),
-            reset_password_token.key),
+        "Your unique reset token is {}".format(reset_password_token.key),
         # from:
         "noreply@toilets4london.com",
         # to:

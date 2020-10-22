@@ -13,6 +13,7 @@ class ToiletSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url',
                   'id',
                   'data_source',
+                  'name',
                   'address',
                   'borough',
                   'latitude',
@@ -20,7 +21,8 @@ class ToiletSerializer(serializers.HyperlinkedModelSerializer):
                   'opening_hours',
                   'wheelchair',
                   'baby_change',
-                  'name',
+                  'fee',
+                  'covid',
                   'ratings',
                   'reports']
 

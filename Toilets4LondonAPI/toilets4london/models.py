@@ -58,6 +58,8 @@ class Toilet(models.Model):
     name = models.CharField(max_length=500, blank=True, default='')
     wheelchair = models.BooleanField(blank=True, default=False)
     baby_change = models.BooleanField(blank=True, default=False)
+    fee = models.CharField(max_length=100, blank=True, default='Free')
+    covid = models.CharField(max_length=500, blank=True, default='')
 
     class Meta:
         constraints = [

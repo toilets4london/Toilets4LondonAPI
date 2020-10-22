@@ -28,18 +28,8 @@ class Toilets4LondonUserResource(resources.ModelResource):
 
 @admin.register(Toilet)
 class ToiletAdmin(ImportExportModelAdmin):
-    list_display = ('id',
-                    'name',
-                    'address',
-                    'borough',
-                    # 'owner',
-                    'data_source',
-                    'opening_hours',
-                    'wheelchair',
-                    'baby_change',
-                    'ratings',
-                    'average_rating',
-                    'reports')
+    list_display = ('id', 'name', 'data_source', 'address', 'borough', 'opening_hours', 'wheelchair', 'baby_change',
+                    'fee', 'covid', 'average_rating')
     resource_class = ToiletResource
     list_filter = ('borough', 'owner', 'wheelchair', 'baby_change', 'data_source')
     search_fields = ('id', 'name', 'address')
