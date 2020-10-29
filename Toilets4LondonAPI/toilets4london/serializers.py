@@ -1,12 +1,16 @@
 from rest_framework import serializers
 from Toilets4LondonAPI.toilets4london.models import Toilet, Rating, Toilets4LondonUser, Report
-from collections import Counter
 from rest_framework.reverse import reverse
+from django.db.models import Avg
 
 
 class ToiletSerializer(serializers.HyperlinkedModelSerializer):
-    ratings = serializers.SerializerMethodField('get_ratings_detail')
-    reports = serializers.SerializerMethodField('get_reports_detail')
+
+    def average_rating(self, obj):
+        result = Rating.objects.filter(toilet=obj).aggregate(Avg("rating"))
+        return result["rating__avg"]
+
+    rating = serializers.SerializerMethodField('average_rating')
 
     class Meta:
         model = Toilet
@@ -23,18 +27,7 @@ class ToiletSerializer(serializers.HyperlinkedModelSerializer):
                   'baby_change',
                   'fee',
                   'covid',
-                  'ratings',
-                  'reports']
-
-    def get_ratings_detail(self, obj):
-        ratings = Rating.objects.filter(toilet=obj)
-        ratings = Counter(ratings.values_list("rating", flat=True))
-        return {f"rating{star}_star": count for star, count in ratings.items()}
-
-    def get_reports_detail(self, obj):
-        reports = Report.objects.filter(toilet=obj)
-        reports = Counter(reports.values_list("reason", flat=True))
-        return {f"Reported_{problem}": count for problem, count in reports.items()}
+                  'rating']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -52,7 +45,7 @@ class RatingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Rating
-        fields = ['id','toilet', 'toilet_url', 'user', 'rating', 'date']
+        fields = ['id', 'toilet', 'toilet_url', 'user', 'rating', 'date']
 
     def get_toilet_url(self, obj):
         request = self.context['request']

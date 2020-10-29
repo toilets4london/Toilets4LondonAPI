@@ -5,13 +5,13 @@ from Toilets4LondonAPI.toilets4london.models import Toilet, Toilets4LondonUser
 
 fakereport1 = {
     "toilet": 1,
-    "reason": "LQ",
+    "reason": "O",
     "other_description": "Some random description"
 }
 
 fakereport2 = {
     "toilet": 1,
-    "reason": "NC",
+    "reason": "DNE",
 }
 
 invalidreport1 = {
