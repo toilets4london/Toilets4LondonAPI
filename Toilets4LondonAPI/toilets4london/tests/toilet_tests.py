@@ -20,6 +20,7 @@ class ToiletTests(APITestCase):
             data=json_data,
             content_type='application/json'
         )
+        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Toilet.objects.count(), 848)
 
