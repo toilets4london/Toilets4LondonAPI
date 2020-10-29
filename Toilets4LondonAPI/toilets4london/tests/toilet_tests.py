@@ -1,8 +1,6 @@
-import json
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
-from Toilets4LondonAPI.toilets4london.models import Toilet, Toilets4LondonUser
-from django.core.exceptions import ValidationError
+from Toilets4LondonAPI.toilets4london.models import Toilet, Toilets4LondonUser, Rating
 
 
 class ToiletTests(APITestCase):
@@ -22,6 +20,7 @@ class ToiletTests(APITestCase):
             data=json_data,
             content_type='application/json'
         )
+        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Toilet.objects.count(), 848)
 
@@ -38,48 +37,54 @@ class ToiletTests(APITestCase):
         response = self.client.get('/toilets/')
         self.assertIsNotNone(response.data['next'])
 
-    def test_geocoding(self):
-        user = Toilets4LondonUser.objects.create(email="test", password="banana")
-        toilet = Toilet.objects.create(address="Hampton Court Road, Richmond", owner=user)
-        self.assertEqual(51.4124879, toilet.latitude)
-        self.assertEqual(-0.3587922, toilet.longitude)
-        self.assertTrue("Richmond" in toilet.borough)
+    def test_importing_exported_data(self):
+        # This works provided "1" and "0" are replaced with "true" and "false"
+        with open('Toilets4LondonAPI/toilets4london/tests/example_old_data.json') as datafile:
+            json_data = datafile.read()
+        response = self.client.post(
+            '/toilets/',
+            data=json_data,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.get('/toilets/')
+        print(response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_geocoding_invalid_address(self):
-        user = Toilets4LondonUser.objects.create(email="test", password="banana")
-        with self.assertRaises(ValidationError):
-            Toilet.objects.create(address="Bananarama in pyjamas", owner=user)
+    def test_average_rating_serialised(self):
 
-    def test_reverse_geocoding_invalid_coords(self):
-        user = Toilets4LondonUser.objects.create(email="test", password="banana")
-        with self.assertRaises(ValidationError):
-            Toilet.objects.create(latitude=0,longitude=4545, owner=user)
+        user1 = Toilets4LondonUser.objects.create(
+            email="hello@example.com",
+            password="thisisarandomstring!2"
+        )
 
-    def test_error_when_no_location_info(self):
-        user = Toilets4LondonUser.objects.create(email="test", password="banana")
-        with self.assertRaises(ValidationError):
-            Toilet.objects.create(owner=user, name="Random toilet with no location")
+        user2 = Toilets4LondonUser.objects.create(
+            email="hello@banana.com",
+            password="thisisarandomstring!2"
+        )
 
-    def test_reverse_geocoding(self):
-        user = Toilets4LondonUser.objects.create(email="test", password="banana")
-        toilet = Toilet.objects.create(latitude=51.4087329, longitude=-0.3323747, owner=user)
-        self.assertTrue("Hampton Court Road" in toilet.address)
-        self.assertEqual(toilet.borough, "Richmond upon Thames")
+        toilet1 = Toilet.objects.create(
+            borough="Camden",
+            latitude=12,
+            longitude=12,
+            owner=user1
+        )
 
-    def test_no_reverse_geocoding_when_address_set(self):
-        user = Toilets4LondonUser.objects.create(email="test", password="banana")
-        toilet = Toilet.objects.create(latitude=51.4087329, longitude=-0.3323747, owner=user, address="random")
-        self.assertEqual(toilet.address, "random")
-        self.assertEqual(toilet.borough, "")
+        Rating.objects.create(
+            toilet=toilet1,
+            user=user1,
+            rating=5
+        )
 
-    def test_borough_added_if_possible(self):
-        user = Toilets4LondonUser.objects.create(email="test", password="banana")
-        toilet = Toilet.objects.create(latitude=51.4087329, longitude=-0.3323747, owner=user, address="a place in Camden")
-        self.assertEqual(toilet.address, "a place in Camden")
-        self.assertEqual(toilet.borough, "Camden")
+        Rating.objects.create(
+            toilet=toilet1,
+            user=user2,
+            rating=4
+        )
 
-    def test_borough_not_changed_if_present(self):
-        user = Toilets4LondonUser.objects.create(email="test", password="banana")
-        toilet = Toilet.objects.create(latitude=51.4087329, longitude=-0.3323747, owner=user, borough="Random")
-        self.assertTrue("Hampton Court Road" in toilet.address)
-        self.assertEqual(toilet.borough, "Random")
+        response = self.client.get('/toilets/')
+        results = response.data['results']
+        self.assertEqual(results[0]['rating'], 4.5)
+
+
+

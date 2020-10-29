@@ -29,12 +29,28 @@
 - POST forgot password { 'email' : *your email* } `/reset-password/`
 - POST reset password with token received by email { 'token' : *token in email* , 'password' : *your new password* } `/reset-password/confirm/`
 
-| Problem                   | Report reason code |
-| ------------------------- | ------------------ |
-| Does not exist            | "DNE"              |
-| No toilet paper           | "NTP"              |
-| Long queue                | "LQ"               |
-| No handwashing facilities | "NH"               |
-| Blocked or broken         | "BOB"              |
-| Not clean                 | "NC"               |
-| Other                     | "O"                |
+| Problem                               | Report reason code |
+| ------------------------------------- | ------------------ |
+| This toilet does not exist            | "DNE"              |
+| This toilet is very poorly maintained | "O"                |
+
+# Example response for GET toilet
+
+```json
+{
+    "url": "http://127.0.0.1:8000/toilets/2/",
+    "id": 2,
+    "data_source": "Dataset sent in by Healthmatic 26/10/20",
+    "name": "Islington Green Automatic Public Toilet",
+    "address": "Islington Green N1",
+    "borough": "Islington",
+    "latitude": 51.536241,
+    "longitude": -0.1024704,
+    "opening_hours": "24 hr",
+    "wheelchair": true,
+    "baby_change": false,
+    "fee": "20p",
+    "covid": "",
+    "rating": null
+}
+```

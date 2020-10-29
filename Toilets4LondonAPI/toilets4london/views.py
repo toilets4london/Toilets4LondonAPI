@@ -21,7 +21,7 @@ class ToiletViewSet(viewsets.ModelViewSet):
     serializer_class = ToiletSerializer
     permission_classes = [IsOwnerOrReadOnly, permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['borough', 'latitude','longitude','name']
+    filterset_fields = ['borough', 'latitude', 'longitude', 'name']
     search_fields = ['address', 'name', 'borough']
     pagination_class = LargeResultsSetPagination
 
@@ -59,7 +59,7 @@ class RatingViewSet(viewsets.ModelViewSet):
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         except IntegrityError:
-            return Response({"Error":"Cannot review toilet twice"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"Error": "Cannot review toilet twice"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ReportViewSet(viewsets.ModelViewSet):
@@ -80,7 +80,7 @@ class ReportViewSet(viewsets.ModelViewSet):
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         except IntegrityError:
-            return Response({"Error":"Cannot report toilet twice"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"Error": "Cannot report toilet twice"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @receiver(reset_password_token_created)
