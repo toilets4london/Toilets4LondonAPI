@@ -22,15 +22,15 @@ class Toilets4LondonUser(AbstractUser):
 
 class Toilet(models.Model):
 
-    borough_choices = [(b, b) for b in BOROUGHS].append(("Other", "Other"))
+    borough_choices = [(b, b) for b in BOROUGHS] + [("", "Other")]
 
     # Required fields
     latitude = models.FloatField(blank=False, validators=[validate_latitude])
     longitude = models.FloatField(blank=False, validators=[validate_longitude])
     owner = models.ForeignKey(AUTH_USER_MODEL, related_name='toilets', on_delete=models.CASCADE)
+    borough = models.CharField(choices=borough_choices, default="", max_length=100)
 
     # Optional fields
-    borough = models.CharField(blank=True, choices=borough_choices, max_length=100, default="Other")
     name = models.CharField(max_length=500, blank=True, default='')
     data_source = models.CharField(max_length=500, blank=True, default='')
     address = models.CharField(max_length=500, blank=True, default='')
