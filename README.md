@@ -4,6 +4,7 @@
 - Intended to be serve as a simple way to manage London toilet data
 - Currently deployed at https://toilets4london.herokuapp.com/
 - View simple map of data at https://toilets4london.herokuapp.com/toilets/view_map/
+- React web app map at https://londontoiletmap.netlify.app/
 
 # Running Locally
 
@@ -19,20 +20,22 @@
     
 # Endpoints used by [mobile app](https://github.com/toilets4london/ToiletApp/)
 
-- GET all toilets `/toilets/?page_size=1000` (increase `page_size` if there are > 1000 toilets in the database)
-- GET my ratings HEADERS { 'Authorization' : *token [valid api token]* } `/ratings/`
-- GET my reports HEADERS { 'Authorization' : *token [valid api token]* } `/reports/`
-- POST sign up { 'email' : *your email* , 'password' : *your password* } `/auth/users/`
-- POST obtain api token { 'email' : *your email* , 'password' : *your password* } `/auth/token/login/`
-- POST star rating { 'toilet' : *valid toilet id* , 'rating': *1-5 star rating* } HEADERS { 'Authorization' : *token [valid api token]* } `/ratings/`
-- POST report a toilet { 'toilet' : *valid toilet id* , 'reason' : *valid reason code, see below* , 'other_description' : *text describing problem* } HEADERS { 'Authorization' : *token [valid api token]* } `/reports/`
-- POST forgot password { 'email' : *your email* } `/reset-password/`
-- POST reset password with token received by email { 'token' : *token in email* , 'password' : *your new password* } `/reset-password/confirm/`
+- GET all toilets `/toilets/?page_size=2000` (increase `page_size` if there are > 2000 toilets in the database)
+- POST star rating { 'toilet' : *valid toilet id* , 'rating': *1-5 star rating* } `/ratings/`
+- POST report a toilet { 'toilet' : *valid toilet id* , 'reason' : *valid reason code, see below* , 'other_description' : *text describing problem* } `/reports/`
 
 | Problem                               | Report reason code |
 | ------------------------------------- | ------------------ |
 | This toilet does not exist            | "DNE"              |
 | This toilet is very poorly maintained | "O"                |
+
+### Creating an account (allows you to post more ratings / reports per day if you use the Authorization header)
+
+- POST sign up { 'email' : *your email* , 'password' : *your password* } `/auth/users/`
+- POST obtain api token { 'email' : *your email* , 'password' : *your password* } `/auth/token/login/`
+- POST forgot password { 'email' : *your email* } `/reset-password/`
+- POST reset password with token received by email { 'token' : *token in email* , 'password' : *your new password* } `/reset-password/confirm/`
+- With an API token you can then use the header { 'Authorization' : *token [valid api token]* } for POST endpoints (`/ratings/` and `/reports/` )
 
 # Example response for GET toilet
 

@@ -1,4 +1,5 @@
 from Toilets4LondonAPI.toilets4london.models import Toilet, Rating, Report
+from Toilets4LondonAPI.toilets4london.throttling import PostAnonymousRateThrottle, GetAnonymousRateThrottle
 from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, RatingSerializer, ReportSerializer
 from Toilets4LondonAPI.toilets4london.permissions import IsOwnerOrReadOnly
 from Toilets4LondonAPI.toilets4london.pagination import LargeResultsSetPagination
@@ -24,6 +25,7 @@ class ToiletViewSet(viewsets.ModelViewSet):
     filterset_fields = ['borough', 'latitude', 'longitude', 'name']
     search_fields = ['address', 'name', 'borough']
     pagination_class = LargeResultsSetPagination
+    throttle_classes = [GetAnonymousRateThrottle]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -38,49 +40,20 @@ class ToiletViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], renderer_classes=[renderers.TemplateHTMLRenderer])
     def view_map(self, request):
         queryset = Toilet.objects.all()
-        return Response({"toilets": queryset,"base_url": reverse('toilet-list')}, template_name='toilet_map.html')
+        return Response({"toilets": queryset, "base_url": reverse('toilet-list')}, template_name='toilet_map.html')
 
 
 class RatingViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    queryset = Rating.objects.all()
+    throttle_classes = [GetAnonymousRateThrottle, PostAnonymousRateThrottle]
     serializer_class = RatingSerializer
-
-    def get_queryset(self):
-        return Rating.objects.filter(user=self.request.user).order_by('date')
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        try:
-            self.perform_create(serializer)
-            headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        except IntegrityError:
-            return Response({"Error": "Cannot review toilet twice"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ReportViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    queryset = Report.objects.all()
+    throttle_classes = [GetAnonymousRateThrottle, PostAnonymousRateThrottle]
     serializer_class = ReportSerializer
 
-    def get_queryset(self):
-        return Report.objects.filter(user=self.request.user).order_by('date')
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        try:
-            self.perform_create(serializer)
-            headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        except IntegrityError:
-            return Response({"Error": "Cannot report toilet twice"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @receiver(reset_password_token_created)

@@ -72,13 +72,11 @@ class ToiletTests(APITestCase):
 
         Rating.objects.create(
             toilet=toilet1,
-            user=user1,
             rating=5
         )
 
         Rating.objects.create(
             toilet=toilet1,
-            user=user2,
             rating=4
         )
 

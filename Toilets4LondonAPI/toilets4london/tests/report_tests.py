@@ -55,15 +55,7 @@ class ReportTests(APITestCase):
 
     def test_post_report_once(self):
         response = self.client.post('/reports/',fakereport1)
-        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_post_report_twice(self):
-        response = self.client.post('/reports/',fakereport1)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        response = self.client.post('/reports/', fakereport2)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, {"Error":"Cannot report toilet twice"})
 
     def test_post_report_invalid_toilet(self):
         response = self.client.post('/reports/',invalidreport1)

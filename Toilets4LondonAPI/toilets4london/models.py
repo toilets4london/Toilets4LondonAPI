@@ -50,12 +50,6 @@ class Toilet(models.Model):
 class Rating(models.Model):
     SCORE_CHOICES = zip(range(1,6), range(1,6))
 
-    class Meta:
-        unique_together = [
-            'user',
-            'toilet']
-
-    user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='ratings')
     toilet = models.ForeignKey(Toilet, on_delete=models.CASCADE, related_name='ratings')
     rating = models.PositiveSmallIntegerField(choices=SCORE_CHOICES, blank=False)
     date = models.DateTimeField(auto_now_add=True)
@@ -78,14 +72,8 @@ class Report(models.Model):
     )
 
     other_description = models.TextField(blank=True, default="", max_length=500)
-    user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reports')
     toilet = models.ForeignKey(Toilet, on_delete=models.CASCADE, related_name='reports')
     date = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = [
-            'user',
-            'toilet']
 
     def __str__(self):
         return "toilet %s reported %s" % (self.toilet.__str__(), self.date.strftime("%m/%d/%Y, %H:%M:%S"))
