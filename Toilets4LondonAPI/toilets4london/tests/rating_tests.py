@@ -4,39 +4,39 @@ from Toilets4LondonAPI.toilets4london.models import Toilet, Toilets4LondonUser
 
 
 fakerating = {
-    "toilet": 1,
-    "rating": 5
+    'toilet': 1,
+    'rating': 5
 }
 
 fakerating2 = {
-    "toilet": 1,
-    "rating": 4
+    'toilet': 1,
+    'rating': 4
 }
 
 invalidrating1 = {
-    "toilet": 100,
-    "rating": 5
+    'toilet': 100,
+    'rating': 5
 }
 
 invalidrating2 = {
-    "toilet": 1,
-    "rating": 66
+    'toilet': 1,
+    'rating': 66
 }
 
 
 def create_toilet():
     user = Toilets4LondonUser.objects.create(
-        email="hello@example.com",
-        password="thisisarandomstring!2"
+        email='hello@example.com',
+        password='thisisarandomstring!2'
     )
     Toilet.objects.create(
-        address="5 Mill Lane",
-        borough="Camden",
+        address='5 Mill Lane',
+        borough='Camden',
         latitude=12,
         longitude=12,
         owner=user,
-        opening_hours="",
-        name="Fake Toilet",
+        opening_hours='',
+        name='Fake Toilet',
         wheelchair=False
     )
 
@@ -49,19 +49,12 @@ class RatingTests(APITestCase):
         self.user = self.client.post('/auth/users/',data={'email':'user1@example.com','password':'banana678!'})
         response = self.client.post('/auth/token/login/', data={'email': 'user1@example.com', 'password': 'banana678!'})
         self.token = response.data['auth_token']
-        self.client.credentials(HTTP_AUTHORIZATION='TOKEN ' + self.token)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
 
     def test_post_rating_once(self):
         response = self.client.post('/ratings/',fakerating)
         print(response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_post_rating_twice(self):
-        response = self.client.post('/ratings/',fakerating)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        response = self.client.post('/ratings/', fakerating2)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, {"Error":"Cannot review toilet twice"})
 
     def test_post_rating_invalid_toilet(self):
         response = self.client.post('/ratings/',invalidrating1)

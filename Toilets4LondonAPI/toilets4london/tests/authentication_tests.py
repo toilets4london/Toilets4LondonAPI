@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 
 faketoilet = {
     "address": "50 Mill Lane",
-    "borough": "Hornsey",
+    "borough": "Camden",
     "latitude": 1,
     "longitude": 2,
     "opening_hours": "5am to 10pm every day",
@@ -19,7 +19,7 @@ fakerating = {
 
 fakereport = {
     "toilet": 1,
-    "reason": "LQ",
+    "reason": "O",
     "other_description": "Some random description"
 }
 
@@ -90,39 +90,14 @@ class AuthenticationTests(APITestCase):
         rating_response = self.client.post('/ratings/', fakerating)
         self.assertEqual(rating_response.status_code, status.HTTP_201_CREATED)
 
-    def test_read_own_rating(self):
-        self.create_toilet()
-        self.api_authentication_user1()
-        self.client.post('/ratings/', fakerating)
-        rating_detail_response = self.client.get('/ratings/1/')
-        self.assertEqual(rating_detail_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(rating_detail_response.data['user'], 2)
-
-    def test_read_others_rating(self):
-        self.create_toilet()
-        self.api_authentication_user1()
-        self.client.post('/ratings/', fakerating)
-        self.api_authentication_user2()
-        rating_detail_response = self.client.get('/ratings/1/')
-        self.assertEqual(rating_detail_response.status_code, status.HTTP_404_NOT_FOUND)
-
     def test_list_ratings_unauthenticated(self):
         response = self.client.get('/ratings/')
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_list_ratings_authenticated(self):
         self.api_authentication_user1()
         response = self.client.get('/ratings/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_only_can_see_own_ratings(self):
-        self.create_toilet()
-        self.api_authentication_user1()
-        self.client.post('/ratings/', fakerating)
-        self.api_authentication_user2()
-        self.client.post('/ratings/', fakerating)
-        response = self.client.get('/ratings/')
-        self.assertEqual(response.data['count'], 1)
 
     def test_create_report(self):
         self.create_toilet()
@@ -130,36 +105,26 @@ class AuthenticationTests(APITestCase):
         report_response = self.client.post('/reports/', fakereport)
         self.assertEqual(report_response.status_code, status.HTTP_201_CREATED)
 
-    def test_read_own_report(self):
+    def test_create_report_unauthenticated(self):
         self.create_toilet()
-        self.api_authentication_user1()
-        self.client.post('/reports/', fakereport)
-        report_detail_response = self.client.get('/reports/1/')
-        self.assertEqual(report_detail_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(report_detail_response.data['user'], 2)
+        report_response = self.client.post('/reports/', fakereport)
+        self.assertEqual(report_response.status_code, status.HTTP_201_CREATED)
 
-    def test_read_others_report(self):
+    def test_create_too_many_reports_unauthenticated(self):
         self.create_toilet()
-        self.api_authentication_user1()
         self.client.post('/reports/', fakereport)
-        self.api_authentication_user2()
-        report_detail_response = self.client.get('/reports/1/')
-        self.assertEqual(report_detail_response.status_code, status.HTTP_404_NOT_FOUND)
+        self.client.post('/reports/', fakereport)
+        self.client.post('/reports/', fakereport)
+        report_response = self.client.post('/reports/', fakereport)
+        self.assertEqual(report_response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
 
     def test_list_reports_unauthenticated(self):
         response = self.client.get('/reports/')
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_list_reports_authenticated(self):
         self.api_authentication_user1()
         response = self.client.get('/reports/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_only_can_see_own_reports(self):
-        self.create_toilet()
-        self.api_authentication_user1()
-        self.client.post('/reports/', fakereport)
-        self.api_authentication_user2()
-        self.client.post('/reports/', fakereport)
-        response = self.client.get('/reports/')
-        self.assertEqual(response.data['count'], 1)
+

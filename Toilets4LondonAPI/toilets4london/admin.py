@@ -70,19 +70,16 @@ class RatingAdmin(admin.ModelAdmin):
     date_hierarchy = 'date'
     resource_class = RatingResource
     list_display = ('id',
-                    'user',
                     'toilet',
                     'rating',
                     'date')
-    list_filter = ('toilet', 'user')
-    search_fields = ('toilet', 'user')
+    list_filter = ['toilet']
+    search_fields = ('toilet','date')
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
         if obj is not None:
-            is_superuser = request.user.is_superuser
-            is_rater = (request.user == obj.user)
-            if not (is_superuser or is_rater):
+            if not request.user.is_superuser:
                 for field in form.base_fields:
                     form.base_fields[field].disabled = True
         return form
@@ -94,20 +91,17 @@ class ReportAdmin(admin.ModelAdmin):
     date_hierarchy = 'date'
     resource_class = ReportResource
     list_display = ('id',
-                    'user',
                     'toilet',
                     'reason',
                     'other_description',
                     'date')
-    list_filter = ('toilet', 'user')
-    search_fields = ('toilet', 'user','other_description')
+    list_filter = ['toilet']
+    search_fields = ('toilet','other_description','date')
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
         if obj is not None:
-            is_superuser = request.user.is_superuser
-            is_reporter = (request.user == obj.user)
-            if not (is_superuser or is_reporter):
+            if not request.user.is_superuser:
                 for field in form.base_fields:
                     form.base_fields[field].disabled = True
         return form
