@@ -8,7 +8,10 @@ class ToiletSerializer(serializers.HyperlinkedModelSerializer):
 
     def average_rating(self, obj):
         result = Rating.objects.filter(toilet=obj).aggregate(Avg("rating"))
-        return result["rating__avg"]
+        avg = result["rating__avg"]
+        if avg:
+            return round(avg)
+        return None
 
     rating = serializers.SerializerMethodField('average_rating')
 

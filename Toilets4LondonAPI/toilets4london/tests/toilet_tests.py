@@ -58,11 +58,6 @@ class ToiletTests(APITestCase):
             password="thisisarandomstring!2"
         )
 
-        user2 = Toilets4LondonUser.objects.create(
-            email="hello@banana.com",
-            password="thisisarandomstring!2"
-        )
-
         toilet1 = Toilet.objects.create(
             borough="Camden",
             latitude=12,
@@ -77,12 +72,17 @@ class ToiletTests(APITestCase):
 
         Rating.objects.create(
             toilet=toilet1,
+            rating=5
+        )
+
+        Rating.objects.create(
+            toilet=toilet1,
             rating=4
         )
 
         response = self.client.get('/toilets/')
         results = response.data['results']
-        self.assertEqual(results[0]['rating'], 4.5)
+        self.assertEqual(results[0]['rating'], 5)
 
 
 
