@@ -14,10 +14,12 @@ class ToiletSerializer(serializers.HyperlinkedModelSerializer):
         return None
 
     rating = serializers.SerializerMethodField('average_rating')
+    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Toilet
         fields = ['url',
+                  'owner',
                   'id',
                   'data_source',
                   'name',
@@ -30,7 +32,8 @@ class ToiletSerializer(serializers.HyperlinkedModelSerializer):
                   'baby_change',
                   'fee',
                   'covid',
-                  'rating']
+                  'rating',
+                  'open']
 
 
 class UserSerializer(serializers.ModelSerializer):

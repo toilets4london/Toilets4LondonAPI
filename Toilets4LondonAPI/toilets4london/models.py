@@ -39,6 +39,7 @@ class Toilet(models.Model):
     baby_change = models.BooleanField(blank=True, default=False)
     fee = models.CharField(max_length=100, blank=True, default='Free')
     covid = models.CharField(max_length=500, blank=True, default='')
+    open = models.BooleanField(blank=True, default=True)
 
     def __str__(self):
         if len(self.name) > 0:

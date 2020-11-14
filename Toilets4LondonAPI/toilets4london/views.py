@@ -18,7 +18,7 @@ from django_rest_passwordreset.signals import reset_password_token_created
 
 
 class ToiletViewSet(viewsets.ModelViewSet):
-    queryset = Toilet.objects.all()
+    queryset = Toilet.objects.filter(open=True)
     serializer_class = ToiletSerializer
     permission_classes = [IsOwnerOrReadOnly, permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
@@ -26,9 +26,6 @@ class ToiletViewSet(viewsets.ModelViewSet):
     search_fields = ['address', 'name', 'borough']
     pagination_class = LargeResultsSetPagination
     throttle_classes = [GetAnonymousRateThrottle]
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data, many=isinstance(request.data, list))
