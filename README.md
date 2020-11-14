@@ -54,6 +54,7 @@
     "baby_change": false,
     "fee": "20p",
     "covid": "",
-    "rating": null
+    "rating": null,
+    "open": true
 }
 ```
