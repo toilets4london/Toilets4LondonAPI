@@ -40,6 +40,8 @@ class Toilet(models.Model):
     fee = models.CharField(max_length=100, blank=True, default='Free')
     covid = models.CharField(max_length=500, blank=True, default='')
     open = models.BooleanField(blank=True, default=True)
+    rating = models.FloatField(blank=True, null=True)
+    num_ratings = models.IntegerField(blank=True, default=0)
 
     def __str__(self):
         if len(self.name) > 0:
@@ -63,7 +65,7 @@ class Report(models.Model):
 
     REASON_CHOICES = [
         ('DNE', 'This toilet does not exist'),
-        ('O', 'This toilet is very poorly maintained')
+        ('O', 'Other')
     ]
 
     reason = models.CharField(

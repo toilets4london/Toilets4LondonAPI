@@ -69,3 +69,35 @@ class RatingTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response = self.client.put('/ratings/1/', fakerating2)
         self.assertEqual(response.status_code,status.HTTP_200_OK)
+
+    def test_average_rating_added_1_rating(self):
+        toilet = Toilet.objects.get(id=1)
+        self.assertEqual(0, toilet.num_ratings)
+        self.assertIsNone(toilet.rating)
+        self.client.post('/ratings/',fakerating)
+        toilet = Toilet.objects.get(id=1)
+        self.assertEqual(1, toilet.num_ratings)
+        self.assertEqual(5, toilet.rating)
+
+    def test_average_rating_updated_2_ratings(self):
+        self.client.post('/ratings/',fakerating)
+        self.client.post('/ratings/',fakerating2)
+        toilet = Toilet.objects.get(id=1)
+        self.assertEqual(4.5, toilet.rating)
+        self.assertEqual(2, toilet.num_ratings)
+
+    def test_weighted_average_rating_updated(self):
+        self.client.post('/ratings/',{'toilet':1,'rating':5})
+        self.client.post('/ratings/',{'toilet':1,'rating':3})
+        self.client.post('/ratings/', {'toilet':1, 'rating':1})
+        toilet = Toilet.objects.get(id=1)
+        self.assertEqual(3, toilet.rating)
+        self.assertEqual(3, toilet.num_ratings)
+
+    def test_weighted_average_rating_not_updated_invalid_rating(self):
+        self.client.post('/ratings/',{'toilet':1,'rating':5})
+        self.client.post('/ratings/',{'toilet':1,'rating':3})
+        self.client.post('/ratings/', {'toilet':1, 'rating':100})
+        toilet = Toilet.objects.get(id=1)
+        self.assertEqual(4, toilet.rating)
+        self.assertEqual(2, toilet.num_ratings)
