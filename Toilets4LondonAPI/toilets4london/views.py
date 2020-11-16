@@ -45,6 +45,23 @@ class RatingViewSet(viewsets.ModelViewSet):
     throttle_classes = [GetAnonymousRateThrottle, PostAnonymousRateThrottle]
     serializer_class = RatingSerializer
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        toilet = serializer.validated_data['toilet']
+        num_ratings = toilet.num_ratings + 1
+        toilet.num_ratings = num_ratings
+        if toilet.rating and num_ratings > 1:
+            toilet.rating = (toilet.rating*(num_ratings-1) + serializer.validated_data['rating'])/num_ratings
+        else:
+            toilet.rating = serializer.validated_data['rating']
+        toilet.save()
+
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 class ReportViewSet(viewsets.ModelViewSet):
     queryset = Report.objects.all()

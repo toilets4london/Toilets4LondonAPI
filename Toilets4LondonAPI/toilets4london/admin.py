@@ -73,7 +73,6 @@ class RatingAdmin(admin.ModelAdmin):
                     'toilet',
                     'rating',
                     'date')
-    list_filter = ['toilet']
     search_fields = ('toilet','date')
 
     def get_form(self, request, obj=None, **kwargs):
@@ -95,7 +94,6 @@ class ReportAdmin(admin.ModelAdmin):
                     'reason',
                     'other_description',
                     'date')
-    list_filter = ['toilet']
     search_fields = ('toilet','other_description','date')
 
     def get_form(self, request, obj=None, **kwargs):

@@ -51,38 +51,6 @@ class ToiletTests(APITestCase):
         print(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_average_rating_serialised(self):
-
-        user1 = Toilets4LondonUser.objects.create(
-            email="hello@example.com",
-            password="thisisarandomstring!2"
-        )
-
-        toilet1 = Toilet.objects.create(
-            borough="Camden",
-            latitude=12,
-            longitude=12,
-            owner=user1
-        )
-
-        Rating.objects.create(
-            toilet=toilet1,
-            rating=5
-        )
-
-        Rating.objects.create(
-            toilet=toilet1,
-            rating=5
-        )
-
-        Rating.objects.create(
-            toilet=toilet1,
-            rating=4
-        )
-
-        response = self.client.get('/toilets/')
-        results = response.data['results']
-        self.assertEqual(results[0]['rating'], 5)
 
 
 
