@@ -9,8 +9,23 @@ class ToiletSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Toilet
-        exclude = ['num_ratings']
-        read_only_fields = ['rating']
+        fields = ['url',
+                  'owner',
+                  'id',
+                  'data_source',
+                  'name',
+                  'address',
+                  'borough',
+                  'latitude',
+                  'longitude',
+                  'opening_hours',
+                  'wheelchair',
+                  'baby_change',
+                  'fee',
+                  'covid',
+                  'rating',
+                  'open']
+        read_only_fields = ['rating', 'id']
 
 
 class UserSerializer(serializers.ModelSerializer):
