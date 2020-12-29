@@ -31,17 +31,21 @@ class Toilet(models.Model):
     borough = models.CharField(choices=borough_choices, default="", max_length=100)
 
     # Optional fields
-    name = models.CharField(max_length=500, blank=True, default='')
-    data_source = models.CharField(max_length=500, blank=True, default='')
-    address = models.CharField(max_length=500, blank=True, default='')
-    opening_hours = models.CharField(max_length=500, blank=True, default='')
+    name = models.CharField(blank=True, max_length=500, default='')
+    data_source = models.CharField(blank=True, max_length=500, default='')
+    address = models.CharField(blank=True, max_length=500, default='')
+    opening_hours = models.CharField(blank=True, max_length=500, default='')
+    covid = models.CharField(blank=True, max_length=500, default='')
+
     wheelchair = models.BooleanField(blank=True, default=False)
     baby_change = models.BooleanField(blank=True, default=False)
-    fee = models.CharField(max_length=100, blank=True, default='Free')
-    covid = models.CharField(max_length=500, blank=True, default='')
     open = models.BooleanField(blank=True, default=True)
-    rating = models.FloatField(blank=True, null=True)
+
+    fee = models.CharField(blank=True, max_length=100, default='Free')
     num_ratings = models.IntegerField(blank=True, default=0)
+
+    # Nullable fields
+    rating = models.FloatField(blank=True, null=True)
 
     def __str__(self):
         if len(self.name) > 0:

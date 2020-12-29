@@ -29,7 +29,7 @@ class Toilets4LondonUserResource(resources.ModelResource):
 @admin.register(Toilet)
 class ToiletAdmin(ImportExportModelAdmin):
     list_display = ('id', 'name', 'data_source', 'address', 'borough', 'opening_hours', 'wheelchair', 'baby_change',
-                    'fee', 'covid', 'average_rating', 'open')
+                    'fee', 'covid', 'rating', 'num_ratings', 'open')
     resource_class = ToiletResource
     list_filter = ('borough', 'wheelchair', 'baby_change', 'data_source', 'open')
     search_fields = ('id', 'name', 'address')
@@ -44,24 +44,6 @@ class ToiletAdmin(ImportExportModelAdmin):
                     form.base_fields[field].disabled = True
         return form
 
-    def ratings(self, obj):
-        ratings = Rating.objects.filter(toilet=obj)
-        ratings = Counter(ratings.values_list("rating", flat=True))
-        return {f"{star}_star": count for star, count in ratings.items()}
-
-    def reports(self, obj):
-        reports = Report.objects.filter(toilet=obj)
-        reasons = Counter(reports.values_list("reason", flat=True))
-        return {f"Reported_{problem}": count for problem, count in reasons.items()}
-
-    def report_messages(self, obj):
-        reports = Report.objects.filter(toilet=obj)
-        messages = reports.values_list("other_description", flat=True)
-        return [m for m in messages]
-
-    def average_rating(self, obj):
-        result = Rating.objects.filter(toilet=obj).aggregate(Avg("rating"))
-        return result["rating__avg"]
 
 
 @admin.register(Rating)
