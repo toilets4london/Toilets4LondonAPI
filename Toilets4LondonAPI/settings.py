@@ -154,7 +154,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_THROTTLE_RATES': {
         # Temporarily increased for testing
-        'post_anon': '30/day',
+        'post_anon': '5/day',
         'get_anon': '10/minute'
     },
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
