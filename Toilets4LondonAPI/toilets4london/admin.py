@@ -2,8 +2,6 @@ from django.contrib import admin
 from Toilets4LondonAPI.toilets4london.models import Toilet, Toilets4LondonUser, Rating, Report
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
-from collections import Counter
-from django.db.models import Avg
 
 
 class ToiletResource(resources.ModelResource):
@@ -26,13 +24,29 @@ class Toilets4LondonUserResource(resources.ModelResource):
         model = Toilets4LondonUser
 
 
+def set_open(modeladmin, request, queryset):
+    queryset.update(open=True)
+
+
+set_open.short_description = "Mark selected toilets as open"
+
+
+def set_closed(modeladmin, request, queryset):
+    queryset.update(open=False)
+
+
+set_closed.short_description = "Mark selected toilets as closed"
+
+
 @admin.register(Toilet)
 class ToiletAdmin(ImportExportModelAdmin):
     list_display = ('id', 'name', 'data_source', 'address', 'borough', 'opening_hours', 'wheelchair', 'baby_change',
                     'fee', 'covid', 'rating', 'num_ratings', 'open')
     resource_class = ToiletResource
     list_filter = ('borough', 'wheelchair', 'baby_change', 'data_source', 'open')
-    search_fields = ('id', 'name', 'address')
+    search_fields = ('id', 'name', 'address', 'data_source')
+
+    actions = [set_open, set_closed]
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
@@ -45,17 +59,15 @@ class ToiletAdmin(ImportExportModelAdmin):
         return form
 
 
-
 @admin.register(Rating)
 class RatingAdmin(admin.ModelAdmin):
-
     date_hierarchy = 'date'
     resource_class = RatingResource
     list_display = ('id',
                     'toilet',
                     'rating',
                     'date')
-    search_fields = ('toilet','date')
+    search_fields = ('toilet', 'date')
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
@@ -64,7 +76,6 @@ class RatingAdmin(admin.ModelAdmin):
                 for field in form.base_fields:
                     form.base_fields[field].disabled = True
         return form
-
 
 
 @admin.register(Report)
@@ -76,7 +87,7 @@ class ReportAdmin(admin.ModelAdmin):
                     'reason',
                     'other_description',
                     'date')
-    search_fields = ('toilet','other_description','date')
+    search_fields = ('toilet', 'other_description', 'date')
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
