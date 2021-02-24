@@ -23,6 +23,7 @@
 - GET all toilets `/toilets/?page_size=2000` (increase `page_size` if there are > 2000 toilets in the database)
 - POST star rating { 'toilet' : *valid toilet id* , 'rating': *1-5 star rating* } `/ratings/`
 - POST report a toilet { 'toilet' : *valid toilet id* , 'reason' : *valid reason code, see below* , 'other_description' : *text describing problem* } `/reports/`
+- POST a suggested toilet { 'latitude': *lat coordinate of suggested toilet*, 'longitude': *long coordinate of suggested toilet*, 'details': *text describing toilet*} `/suggestedtoilets/`
 
 | Problem                               | Report reason code |
 | ------------------------------------- | ------------------ |

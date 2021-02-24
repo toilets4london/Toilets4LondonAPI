@@ -1,5 +1,5 @@
 from django.contrib import admin
-from Toilets4LondonAPI.toilets4london.models import Toilet, Toilets4LondonUser, Rating, Report
+from Toilets4LondonAPI.toilets4london.models import Toilet, Toilets4LondonUser, Rating, Report, SuggestedToilet
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
@@ -22,6 +22,11 @@ class ReportResource(resources.ModelResource):
 class Toilets4LondonUserResource(resources.ModelResource):
     class Meta:
         model = Toilets4LondonUser
+
+
+class SuggestedToiletResource(resources.ModelResource):
+    class Meta:
+        model = SuggestedToilet
 
 
 def set_open(modeladmin, request, queryset):
@@ -57,6 +62,20 @@ class ToiletAdmin(ImportExportModelAdmin):
                 for field in form.base_fields:
                     form.base_fields[field].disabled = True
         return form
+
+
+@admin.register(SuggestedToilet)
+class SuggestedToiletAdmin(admin.ModelAdmin):
+    date_hierarchy = 'date'
+    resource_class = RatingResource
+    list_display = ('id',
+                    'latitude',
+                    'longitude',
+                    'date',
+                    'details')
+    search_fields = ('details', 'date', 'id')
+
+
 
 
 @admin.register(Rating)

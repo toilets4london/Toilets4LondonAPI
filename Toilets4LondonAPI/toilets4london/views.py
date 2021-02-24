@@ -1,6 +1,6 @@
-from Toilets4LondonAPI.toilets4london.models import Toilet, Rating, Report
+from Toilets4LondonAPI.toilets4london.models import Toilet, Rating, Report, SuggestedToilet
 from Toilets4LondonAPI.toilets4london.throttling import PostAnonymousRateThrottle, GetAnonymousRateThrottle
-from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, RatingSerializer, ReportSerializer
+from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, RatingSerializer, ReportSerializer, SuggestedToiletSerializer
 from Toilets4LondonAPI.toilets4london.permissions import IsOwnerOrReadOnly
 from Toilets4LondonAPI.toilets4london.pagination import LargeResultsSetPagination
 
@@ -67,6 +67,12 @@ class ReportViewSet(viewsets.ModelViewSet):
     queryset = Report.objects.all()
     throttle_classes = [GetAnonymousRateThrottle, PostAnonymousRateThrottle]
     serializer_class = ReportSerializer
+
+
+class SuggestedToiletViewSet(viewsets.ModelViewSet):
+    queryset = SuggestedToilet.objects.all()
+    throttle_classes = [GetAnonymousRateThrottle, PostAnonymousRateThrottle]
+    serializer_class = SuggestedToiletSerializer
 
 
 

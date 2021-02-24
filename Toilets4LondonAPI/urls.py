@@ -14,6 +14,7 @@ router.get_api_root_view().cls.__doc__ = "Browse the Toilets4London API"
 router.register(r'toilets', views.ToiletViewSet)
 router.register(r'ratings', views.RatingViewSet, basename='rating')
 router.register(r'reports', views.ReportViewSet, basename='report')
+router.register(r'suggestedtoilets', views.SuggestedToiletViewSet, basename='suggestedtoilet')
 
 admin.site.site_header = 'Toilets4London Toilet Admin Site'
 
