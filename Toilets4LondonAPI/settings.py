@@ -153,8 +153,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_THROTTLE_RATES': {
-        # Temporarily increased for testing
-        'post_anon': '5/day',
+        'post_anon': '10/day',
         'get_anon': '10/minute'
     },
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
