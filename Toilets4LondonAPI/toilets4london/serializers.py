@@ -3,40 +3,40 @@ from Toilets4LondonAPI.toilets4london.models import Toilet, Rating, Toilets4Lond
 from rest_framework.reverse import reverse
 
 
-class ToiletSerializer(serializers.HyperlinkedModelSerializer):
+# serializers.HyperlinkedModelSerializer allows for url field
 
+class ToiletSerializer(serializers.HyperlinkedModelSerializer):
     owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Toilet
-        fields = ['url',
-                  'owner',
-                  'id',
-                  'data_source',
-                  'name',
-                  'address',
-                  'borough',
-                  'latitude',
-                  'longitude',
-                  'opening_hours',
-                  'wheelchair',
-                  'baby_change',
-                  'fee',
-                  'covid',
-                  'rating',
-                  'open']
-        read_only_fields = ['rating', 'id']
+        fields = [
+            'owner',
+            'id',
+            'data_source',
+            'name',
+            'address',
+            'borough',
+            'latitude',
+            'longitude',
+            'opening_hours',
+            'wheelchair',
+            'baby_change',
+            'fee',
+            'covid',
+            'rating',
+            'num_ratings',
+            'open']
+        read_only_fields = ['id']
 
 
 class SuggestedToiletSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = SuggestedToilet
         fields = '__all__'
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Toilets4LondonUser
         fields = '__all__'

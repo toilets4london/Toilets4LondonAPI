@@ -110,14 +110,6 @@ class AuthenticationTests(APITestCase):
         report_response = self.client.post('/reports/', fakereport)
         self.assertEqual(report_response.status_code, status.HTTP_201_CREATED)
 
-    def test_create_too_many_reports_unauthenticated(self):
-        self.create_toilet()
-        self.client.post('/reports/', fakereport)
-        self.client.post('/reports/', fakereport)
-        self.client.post('/reports/', fakereport)
-        report_response = self.client.post('/reports/', fakereport)
-        self.assertEqual(report_response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
-
     def test_list_reports_unauthenticated(self):
         response = self.client.get('/reports/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
