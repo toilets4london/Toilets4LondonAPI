@@ -51,6 +51,26 @@ class ToiletTests(APITestCase):
         print(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_importing_exported_data_ratings(self):
+        # This works provided "1" and "0" are replaced with "true" and "false"
+        with open('Toilets4LondonAPI/toilets4london/tests/Toilet-2021-03-06.json') as datafile:
+            json_data = datafile.read()
+        response = self.client.post(
+            '/toilets/',
+            data=json_data,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.get('/toilets/')
+        print(response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Toilet.objects.filter(id=1).first().name, "Coal Drops Yard Toilet 2")
+        self.assertEqual(Toilet.objects.filter(id=1).first().rating, 5.0)
+        self.assertEqual(Toilet.objects.filter(id=1).first().num_ratings, 1)
+
+
+
+
 
 
 
