@@ -49,7 +49,7 @@ class Toilet(models.Model):
 
     def __str__(self):
         if len(self.name) > 0:
-            return self.name
+            return self.name+" "+str(self.pk)
         else:
             return str(self.pk)
 
