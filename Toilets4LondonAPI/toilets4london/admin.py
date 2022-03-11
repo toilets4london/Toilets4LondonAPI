@@ -61,6 +61,10 @@ class ToiletAdmin(ImportExportModelAdmin):
             if not (is_superuser or is_owner):
                 for field in form.base_fields:
                     form.base_fields[field].disabled = True
+        if not request.user.is_superuser:  # Don't let non super users change these
+            form.base_fields["covid"].disabled = True
+            form.base_fields["rating"].disabled = True
+            form.base_fields["num_ratings"].disabled = True
         return form
 
     def has_delete_permission(self, request, obj=None):
