@@ -63,6 +63,15 @@ class ToiletAdmin(ImportExportModelAdmin):
                     form.base_fields[field].disabled = True
         return form
 
+    def has_delete_permission(self, request, obj=None):
+        can_delete = super().has_delete_permission(request, obj)
+        if obj is not None:
+            is_superuser = request.user.is_superuser
+            is_owner = (request.user == obj.owner)
+            if is_superuser or is_owner:
+                return True
+        return can_delete
+
 
 @admin.register(SuggestedToilet)
 class SuggestedToiletAdmin(admin.ModelAdmin):
