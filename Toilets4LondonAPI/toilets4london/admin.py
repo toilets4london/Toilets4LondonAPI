@@ -1,5 +1,5 @@
 from django.contrib import admin
-from Toilets4LondonAPI.toilets4london.models import Toilet, Toilets4LondonUser, Rating, Report, SuggestedToilet
+from Toilets4LondonAPI.toilets4london.models import Toilet, Toilets4LondonUser, Rating, Report, SuggestedToilet, DownloadReason
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
@@ -89,6 +89,14 @@ class SuggestedToiletAdmin(admin.ModelAdmin):
     search_fields = ('details', 'date', 'id')
 
 
+@admin.register(DownloadReason)
+class DownloadReasonAdmin(admin.ModelAdmin):
+    date_hierarchy = 'date'
+    resource_class = RatingResource
+    list_display = ('id',
+                    'date',
+                    'details')
+    search_fields = ('details', 'date', 'id')
 
 
 @admin.register(Rating)

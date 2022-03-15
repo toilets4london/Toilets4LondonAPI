@@ -15,6 +15,7 @@ router.register(r'toilets', views.ToiletViewSet)
 router.register(r'ratings', views.RatingViewSet, basename='rating')
 router.register(r'reports', views.ReportViewSet, basename='report')
 router.register(r'suggestedtoilets', views.SuggestedToiletViewSet, basename='suggestedtoilet')
+router.register(r'downloadreasons', views.DownloadReasonViewSet, basename='downloadreason')
 
 admin.site.site_header = 'Toilets4London Toilet Admin Site'
 

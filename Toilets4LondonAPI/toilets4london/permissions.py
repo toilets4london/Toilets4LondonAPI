@@ -15,3 +15,13 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         # Write permissions are only allowed to the owner of the snippet.
         return obj.owner == request.user or request.user.is_staff
 
+
+class IsAdminOrWriteOnly(permissions.BasePermission):
+    """
+    Custom permission to only allow post but not get unless admin
+    """
+    def has_object_permission(self, request, view, obj):
+        if request.method == "POST":
+            return True
+        return request.user.is_superuser
+

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Toilets4LondonAPI.toilets4london.models import Toilet, Rating, Toilets4LondonUser, Report, SuggestedToilet
+from Toilets4LondonAPI.toilets4london.models import Toilet, Rating, Toilets4LondonUser, Report, SuggestedToilet, DownloadReason
 from rest_framework.reverse import reverse
 
 
@@ -33,6 +33,12 @@ class ToiletSerializer(serializers.HyperlinkedModelSerializer):
 class SuggestedToiletSerializer(serializers.ModelSerializer):
     class Meta:
         model = SuggestedToilet
+        fields = '__all__'
+
+
+class DownloadReasonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DownloadReason
         fields = '__all__'
 
 

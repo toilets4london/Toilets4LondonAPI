@@ -1,7 +1,7 @@
-from Toilets4LondonAPI.toilets4london.models import Toilet, Rating, Report, SuggestedToilet
+from Toilets4LondonAPI.toilets4london.models import Toilet, Rating, Report, SuggestedToilet, DownloadReason
 from Toilets4LondonAPI.toilets4london.throttling import PostAnonymousRateThrottle, GetAnonymousRateThrottle
-from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, RatingSerializer, ReportSerializer, SuggestedToiletSerializer
-from Toilets4LondonAPI.toilets4london.permissions import IsOwnerOrReadOnly
+from Toilets4LondonAPI.toilets4london.serializers import ToiletSerializer, RatingSerializer, ReportSerializer, SuggestedToiletSerializer, DownloadReasonSerializer
+from Toilets4LondonAPI.toilets4london.permissions import IsOwnerOrReadOnly, IsAdminOrWriteOnly
 from Toilets4LondonAPI.toilets4london.pagination import LargeResultsSetPagination
 
 from rest_framework import permissions, viewsets, status, filters, renderers
@@ -10,7 +10,6 @@ from rest_framework.decorators import action
 
 from django_filters.rest_framework import DjangoFilterBackend
 from django.urls import reverse
-from django.db.utils import IntegrityError
 from django.core.mail import EmailMultiAlternatives
 from django.dispatch import receiver
 
@@ -74,6 +73,12 @@ class SuggestedToiletViewSet(viewsets.ModelViewSet):
     throttle_classes = [GetAnonymousRateThrottle, PostAnonymousRateThrottle]
     serializer_class = SuggestedToiletSerializer
 
+
+class DownloadReasonViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAdminOrWriteOnly]
+    queryset = DownloadReason.objects.all()
+    throttle_classes = [PostAnonymousRateThrottle]
+    serializer_class = DownloadReasonSerializer
 
 
 @receiver(reset_password_token_created)
