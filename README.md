@@ -7,7 +7,7 @@
 - Basic web app at https://app.toilets4london.com/
 - Due to an unfortunate incident when someone attempted to resubmit the iOS app to the app store under a different name with some hidden malicious code, the Swift and Kotlin native app codebases have been closed sourced. If you are interested in getting access to these codebases for educational purposes, to use as the basis of a different app or simply out of interest, feel free to [get in touch](https://www.toilets4london.com/).
 
-## Running Locally
+## Running locally
 
 1. Clone the repo `git clone https://github.com/toilets4london/Toilets4LondonAPI.git`
 2. cd into the project directory `cd Toilets4LondonAPI`
