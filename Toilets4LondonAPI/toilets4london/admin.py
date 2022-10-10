@@ -53,11 +53,17 @@ class ToiletAdmin(ImportExportModelAdmin):
 
     actions = [set_open, set_closed]
 
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if not request.user.is_superuser:
+            return []
+        return actions
+
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
         if obj is not None:
             is_superuser = request.user.is_superuser
-            is_owner = (request.user == obj.owner)
+            is_owner = (request.user == obj.owner) or (request.user.responsible_borough == obj.borough)
             if not (is_superuser or is_owner):
                 for field in form.base_fields:
                     form.base_fields[field].disabled = True
@@ -71,10 +77,12 @@ class ToiletAdmin(ImportExportModelAdmin):
         can_delete = super().has_delete_permission(request, obj)
         if obj is not None:
             is_superuser = request.user.is_superuser
-            is_owner = (request.user == obj.owner)
-            if is_superuser or is_owner:
+            is_owner = (request.user == obj.owner) or (request.user.responsible_borough == obj.borough)
+            if is_superuser:
                 return True
-        return can_delete
+            if is_owner:
+                return can_delete
+        return False
 
 
 @admin.register(SuggestedToilet)
@@ -151,7 +159,8 @@ class Toilets4LondonUserAdmin(admin.ModelAdmin):
             disabled_fields |= {
                 'username',
                 'is_superuser',
-                'user_permissions'
+                'user_permissions',
+                'responsible_borough'
             }
 
         # Prevent non-superusers from editing their own permissions
@@ -161,6 +170,7 @@ class Toilets4LondonUserAdmin(admin.ModelAdmin):
                 'is_superuser',
                 'groups',
                 'user_permissions',
+                'responsible_borough'
             }
 
         for f in disabled_fields:

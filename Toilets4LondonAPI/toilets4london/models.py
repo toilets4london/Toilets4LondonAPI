@@ -10,7 +10,8 @@ from Toilets4LondonAPI.toilets4london.validators import validate_latitude, valid
 class Toilets4LondonUser(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True)
-
+    borough_choices = [(b, b) for b in BOROUGHS] + [("", "Other")]
+    responsible_borough = models.CharField(choices=borough_choices, default="", max_length=100)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
