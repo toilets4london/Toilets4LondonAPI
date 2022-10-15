@@ -2,6 +2,7 @@ from django.contrib import admin
 from Toilets4LondonAPI.toilets4london.models import Toilet, Toilets4LondonUser, Rating, Report, SuggestedToilet, DownloadReason
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
+import Toilets4LondonAPI.settings as settings
 
 
 class ToiletResource(resources.ModelResource):
@@ -83,6 +84,16 @@ class ToiletAdmin(ImportExportModelAdmin):
             if is_owner:
                 return can_delete
         return False
+
+    class Media:
+        if hasattr(settings, 'MAPS_KEY') and settings.MAPS_KEY:
+            css = {
+                'all': ('css/admin/location_picker.css',),
+            }
+            js = (
+                'https://maps.googleapis.com/maps/api/js?key={}&libraries=geometry,places'.format(settings.MAPS_KEY),
+                'js/admin/location_picker.js',
+            )
 
 
 @admin.register(SuggestedToilet)
