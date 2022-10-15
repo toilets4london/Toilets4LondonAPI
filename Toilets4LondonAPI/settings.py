@@ -28,8 +28,11 @@ ALLOWED_HOSTS = ["0.0.0.0", "localhost", "127.0.0.1"]
 if DEBUG:
     with open("testsecretkey.txt") as keyfile:
         SECRET_KEY = keyfile.read()
+    with open("mapskey.txt") as keyfile:
+        MAPS_KEY = keyfile.read()
 else:
     SECRET_KEY = os.getenv("SECRET_KEY")
+    MAPS_KEY = os.getenv("MAPS_KEY")
 
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -143,6 +146,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    "static",
+]
 
 # Django rest framework settings
 # https://www.django-rest-framework.org/tutorial/quickstart/
