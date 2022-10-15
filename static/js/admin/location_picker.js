@@ -12,7 +12,7 @@
 
     var initial_zoom = 10;
 
-    const initial_with_loc_zoom = 14;
+    const initial_with_loc_zoom = 16;
 
     var map;
     var marker;
@@ -38,12 +38,34 @@
         }
 
         $prevEl.after($('<div class="js-setloc-map setloc-map"></div>'));
+        $prevEl.after($('<input id="pac-input" class="controls" type="text" placeholder="Search for a location..."/>'))
 
         var mapEl = document.getElementsByClassName('js-setloc-map')[0];
 
         map = new google.maps.Map(mapEl, {
             zoom: initial_zoom,
             center: {lat: initial_lat, lng: initial_lon}
+        });
+
+        const input = document.getElementById("pac-input");
+        const searchBox = new google.maps.places.SearchBox(input);
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+        map.addListener("bounds_changed", () => {
+            searchBox.setBounds(map.getBounds());
+        });
+
+        searchBox.addListener("places_changed", () => {
+            map.setZoom(13);
+            const places = searchBox.getPlaces();
+            const bounds = new google.maps.LatLngBounds();
+            const place = places[0];
+            if (place.geometry.viewport) {
+                bounds.union(place.geometry.viewport);
+            } else {
+                bounds.extend(place.geometry.location);
+            }
+            map.fitBounds(bounds);
         });
 
         marker = new google.maps.Marker({

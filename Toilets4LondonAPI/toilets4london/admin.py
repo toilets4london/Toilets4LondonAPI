@@ -91,7 +91,7 @@ class ToiletAdmin(ImportExportModelAdmin):
                 'all': ('css/admin/location_picker.css',),
             }
             js = (
-                'https://maps.googleapis.com/maps/api/js?key={}'.format(settings.MAPS_KEY),
+                'https://maps.googleapis.com/maps/api/js?key={}&libraries=geometry,places'.format(settings.MAPS_KEY),
                 'js/admin/location_picker.js',
             )
 
