@@ -11,44 +11,56 @@ router = DefaultRouter()
 router.get_api_root_view().cls.__name__ = "LondonToiletsApiRoot"
 router.get_api_root_view().cls.__doc__ = "Browse the Toilets4London API"
 
-router.register(r'toilets', views.ToiletViewSet)
-router.register(r'ratings', views.RatingViewSet, basename='rating')
-router.register(r'reports', views.ReportViewSet, basename='report')
-router.register(r'suggestedtoilets', views.SuggestedToiletViewSet, basename='suggestedtoilet')
-router.register(r'downloadreasons', views.DownloadReasonViewSet, basename='downloadreason')
+router.register(r"toilets", views.ToiletViewSet)
+router.register(r"ratings", views.RatingViewSet, basename="rating")
+router.register(r"reports", views.ReportViewSet, basename="report")
+router.register(
+    r"suggestedtoilets", views.SuggestedToiletViewSet, basename="suggestedtoilet"
+)
+router.register(
+    r"downloadreasons", views.DownloadReasonViewSet, basename="downloadreason"
+)
 
-admin.site.site_header = 'Toilets4London Toilet Admin Site'
+admin.site.site_header = "Toilets4London Toilet Admin Site"
 
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
     path(
-        'admin/password_reset/',
+        "admin/password_reset/",
         auth_views.PasswordResetView.as_view(),
-        name='admin_password_reset',
+        name="admin_password_reset",
     ),
     path(
-        'admin/password_reset/done/',
+        "admin/password_reset/done/",
         auth_views.PasswordResetDoneView.as_view(),
-        name='password_reset_done',
+        name="password_reset_done",
     ),
     path(
-        'reset/<uidb64>/<token>/',
+        "reset/<uidb64>/<token>/",
         auth_views.PasswordResetConfirmView.as_view(),
-        name='password_reset_confirm',
+        name="password_reset_confirm",
     ),
     path(
-        'reset/done/',
+        "reset/done/",
         auth_views.PasswordResetCompleteView.as_view(),
-        name='password_reset_complete',
+        name="password_reset_complete",
     ),
 ]
 
 urlpatterns += [
-    path('admin/', admin.site.urls),
-    path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken')),
-    path('api-auth/', include('rest_framework.urls')),
-    path('reset-password/', include('django_rest_passwordreset.urls', namespace='password_reset'))
+    path("admin/", admin.site.urls),
+    path("auth/", include("djoser.urls")),
+    path("auth/", include("djoser.urls.authtoken")),
+    path("api-auth/", include("rest_framework.urls")),
+    path(
+        "reset-password/",
+        include("django_rest_passwordreset.urls", namespace="password_reset"),
+    ),
+    path(
+        "admin/toilets4london/toilet/add/",
+        views.PrefillToiletFormView.as_view(),
+        name="prefill_toilet_form",
+    ),
 ]
