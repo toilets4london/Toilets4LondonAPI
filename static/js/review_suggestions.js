@@ -85,54 +85,38 @@ function reverseGeocode(lat, lng) {
     geocoder.geocode({location: {lat: lat, lng: lng}}, function (results, status) {
         if (status === 'OK' && results[0]) {
             addressField.value = results[0].formatted_address;
-            autoSelectBorough(results[0].address_components);
         } else {
             addressField.value = '';
         }
     });
+
+    // Use postcodes.io to look up the borough (admin_district) from coordinates
+    lookupBorough(lat, lng);
 }
 
-// --- Auto-detect borough from Google address components ---
-function autoSelectBorough(components) {
+// --- Borough lookup via postcodes.io (free, no API key, returns London borough) ---
+function lookupBorough(lat, lng) {
     var boroughSelect = document.getElementById('form-borough');
-    // Collect relevant locality names from Google's response
-    var candidates = [];
-    components.forEach(function (c) {
-        if (c.types.indexOf('locality') !== -1 ||
-            c.types.indexOf('sublocality') !== -1 ||
-            c.types.indexOf('sublocality_level_1') !== -1 ||
-            c.types.indexOf('neighborhood') !== -1 ||
-            c.types.indexOf('postal_town') !== -1 ||
-            c.types.indexOf('administrative_area_level_2') !== -1) {
-            candidates.push(c.long_name.toLowerCase());
-        }
-    });
 
-    // Pass 1: exact match
-    for (var i = 0; i < boroughSelect.options.length; i++) {
-        var opt = boroughSelect.options[i];
-        if (!opt.value) continue;
-        var val = opt.value.toLowerCase();
-        for (var j = 0; j < candidates.length; j++) {
-            if (candidates[j] === val) {
-                boroughSelect.value = opt.value;
-                return;
+    fetch('https://api.postcodes.io/postcodes?lon=' + lng + '&lat=' + lat + '&limit=1')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (data.result && data.result.length > 0) {
+                var district = data.result[0].admin_district;
+                if (district) {
+                    // Try exact match against borough options
+                    for (var i = 0; i < boroughSelect.options.length; i++) {
+                        if (boroughSelect.options[i].value === district) {
+                            boroughSelect.value = district;
+                            return;
+                        }
+                    }
+                }
             }
-        }
-    }
-
-    // Pass 2: candidate contains the full borough name (e.g. "London Borough of Camden" contains "Camden")
-    for (var i = 0; i < boroughSelect.options.length; i++) {
-        var opt = boroughSelect.options[i];
-        if (!opt.value) continue;
-        var val = opt.value.toLowerCase();
-        for (var j = 0; j < candidates.length; j++) {
-            if (candidates[j].indexOf(val) !== -1) {
-                boroughSelect.value = opt.value;
-                return;
-            }
-        }
-    }
+        })
+        .catch(function () {
+            // Leave borough as default if lookup fails
+        });
 }
 
 // --- Approve ---
