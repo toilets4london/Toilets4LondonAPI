@@ -32,11 +32,16 @@ from django.core.mail import EmailMultiAlternatives
 from django.dispatch import receiver
 
 from django_rest_passwordreset.signals import reset_password_token_created
+import json
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.core.exceptions import ValidationError
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.contrib import admin
+from Toilets4LondonAPI.toilets4london.borough_list import BOROUGHS
+from Toilets4LondonAPI.settings import MAPS_KEY
 
 
 class ToiletViewSet(viewsets.ModelViewSet):
@@ -157,3 +162,96 @@ class PrefillToiletFormView(View):
             "longitude": longitude,
         }
         return render(request, self.template_name, context)
+
+
+@method_decorator(staff_member_required, name="dispatch")
+class ReviewSuggestionsView(View):
+    def get(self, request):
+        suggestions = SuggestedToilet.objects.all().order_by("-date")
+        suggestions_data = [
+            {
+                "id": s.id,
+                "latitude": s.latitude,
+                "longitude": s.longitude,
+                "details": s.details,
+                "date": s.date.strftime("%Y-%m-%d %H:%M"),
+            }
+            for s in suggestions
+        ]
+        context = {
+            "suggestions_json": json.dumps(suggestions_data),
+            "suggestions_count": suggestions.count(),
+            "boroughs": BOROUGHS,
+            "maps_key": MAPS_KEY,
+        }
+        return render(request, "review_suggestions.html", context)
+
+
+@method_decorator(staff_member_required, name="dispatch")
+class ApproveSuggestionView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            suggested_toilet_id = data.get("suggested_toilet_id")
+
+            try:
+                suggested = SuggestedToilet.objects.get(id=suggested_toilet_id)
+            except SuggestedToilet.DoesNotExist:
+                return JsonResponse(
+                    {"success": False, "error": "Suggested toilet not found."},
+                    status=404,
+                )
+
+            toilet = Toilet(
+                latitude=float(data["latitude"]),
+                longitude=float(data["longitude"]),
+                owner=request.user,
+                address=data.get("address", ""),
+                name=data.get("name", ""),
+                borough=data.get("borough", ""),
+                opening_hours=data.get("opening_hours", ""),
+                wheelchair=data.get("wheelchair", False),
+                baby_change=data.get("baby_change", False),
+                fee=data.get("fee", "Free"),
+                data_source=data.get("data_source", "App upload"),
+            )
+            toilet.full_clean()
+            toilet.save()
+
+            suggested.delete()
+
+            return JsonResponse({"success": True, "toilet_id": toilet.id})
+        except ValidationError as e:
+            return JsonResponse(
+                {"success": False, "error": str(e.message_dict)},
+                status=400,
+            )
+        except (KeyError, ValueError) as e:
+            return JsonResponse(
+                {"success": False, "error": str(e)},
+                status=400,
+            )
+
+
+@method_decorator(staff_member_required, name="dispatch")
+class DismissSuggestionView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            suggested_toilet_id = data.get("suggested_toilet_id")
+
+            try:
+                suggested = SuggestedToilet.objects.get(id=suggested_toilet_id)
+            except SuggestedToilet.DoesNotExist:
+                return JsonResponse(
+                    {"success": False, "error": "Suggested toilet not found."},
+                    status=404,
+                )
+
+            suggested.delete()
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse(
+                {"success": False, "error": str(e)},
+                status=500,
+            )

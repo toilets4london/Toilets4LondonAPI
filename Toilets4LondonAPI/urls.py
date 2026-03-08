@@ -63,4 +63,19 @@ urlpatterns += [
         views.PrefillToiletFormView.as_view(),
         name="prefill_toilet_form",
     ),
+    path(
+        "review-suggestions/",
+        views.ReviewSuggestionsView.as_view(),
+        name="review_suggestions",
+    ),
+    path(
+        "review-suggestions/approve/",
+        views.ApproveSuggestionView.as_view(),
+        name="approve_suggestion",
+    ),
+    path(
+        "review-suggestions/dismiss/",
+        views.DismissSuggestionView.as_view(),
+        name="dismiss_suggestion",
+    ),
 ]
