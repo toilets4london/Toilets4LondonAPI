@@ -84,7 +84,10 @@ function reverseGeocode(lat, lng) {
 
     geocoder.geocode({location: {lat: lat, lng: lng}}, function (results, status) {
         if (status === 'OK' && results[0]) {
-            addressField.value = results[0].formatted_address;
+            addressField.value = results[0].formatted_address
+                .replace(/, London, UK$/, '')
+                .replace(/, London$/, '')
+                .replace(/, UK$/, '');
         } else {
             addressField.value = '';
         }
