@@ -104,16 +104,30 @@ function autoSelectBorough(components) {
             c.types.indexOf('neighborhood') !== -1 ||
             c.types.indexOf('postal_town') !== -1 ||
             c.types.indexOf('administrative_area_level_2') !== -1) {
-            candidates.push(c.long_name);
+            candidates.push(c.long_name.toLowerCase());
         }
     });
 
+    // Pass 1: exact match
     for (var i = 0; i < boroughSelect.options.length; i++) {
         var opt = boroughSelect.options[i];
         if (!opt.value) continue;
         var val = opt.value.toLowerCase();
         for (var j = 0; j < candidates.length; j++) {
-            if (candidates[j].toLowerCase().indexOf(val) !== -1 || val.indexOf(candidates[j].toLowerCase()) !== -1) {
+            if (candidates[j] === val) {
+                boroughSelect.value = opt.value;
+                return;
+            }
+        }
+    }
+
+    // Pass 2: candidate contains the full borough name (e.g. "London Borough of Camden" contains "Camden")
+    for (var i = 0; i < boroughSelect.options.length; i++) {
+        var opt = boroughSelect.options[i];
+        if (!opt.value) continue;
+        var val = opt.value.toLowerCase();
+        for (var j = 0; j < candidates.length; j++) {
+            if (candidates[j].indexOf(val) !== -1) {
                 boroughSelect.value = opt.value;
                 return;
             }
