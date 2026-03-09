@@ -11,6 +11,48 @@ function initMap() {
     geocoder = new google.maps.Geocoder();
     marker = null;
 
+    // --- Search box ---
+    var searchInput = document.getElementById('map-search');
+    var searchBox = new google.maps.places.SearchBox(searchInput);
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(searchInput);
+
+    map.addListener('bounds_changed', function () {
+        searchBox.setBounds(map.getBounds());
+    });
+
+    searchBox.addListener('places_changed', function () {
+        var places = searchBox.getPlaces();
+        if (!places || places.length === 0) return;
+
+        var place = places[0];
+        if (!place.geometry || !place.geometry.location) return;
+
+        var lat = place.geometry.location.lat();
+        var lng = place.geometry.location.lng();
+
+        // Move marker
+        if (marker) {
+            marker.setPosition({lat: lat, lng: lng});
+        } else {
+            marker = new google.maps.Marker({map: map, position: {lat: lat, lng: lng}});
+        }
+
+        // Fit map to place
+        if (place.geometry.viewport) {
+            map.fitBounds(place.geometry.viewport);
+        } else {
+            map.setCenter({lat: lat, lng: lng});
+            map.setZoom(16);
+        }
+
+        // Update form fields if a suggestion is selected
+        if (document.getElementById('approval-form').style.display !== 'none') {
+            document.getElementById('form-latitude').value = lat;
+            document.getElementById('form-longitude').value = lng;
+            reverseGeocode(lat, lng);
+        }
+    });
+
     // --- Build suggestion cards ---
     listEl = document.getElementById('suggestion-list');
 
