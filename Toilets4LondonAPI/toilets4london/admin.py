@@ -11,6 +11,9 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 import Toilets4LondonAPI.settings as settings
 
+# Default owner for toilets created from an app suggestion
+SUGGESTION_OWNER_EMAIL = "nina@toilets4london.com"
+
 
 class ToiletResource(resources.ModelResource):
     class Meta:
@@ -108,7 +111,6 @@ class ToiletAdmin(ImportExportModelAdmin):
         else:
             if "owner" in form.base_fields:
                 form.base_fields["owner"].initial = request.user
-                form.base_fields["owner"].disabled = True
         if not request.user.is_superuser:  # Don't let non super users change these
             if "covid" in form.base_fields:
                 form.base_fields["covid"].disabled = True
@@ -118,6 +120,20 @@ class ToiletAdmin(ImportExportModelAdmin):
                 form.base_fields["num_ratings"].disabled = True
             if "owner" in form.base_fields:
                 form.base_fields["owner"].disabled = True
+        if "latitude" in request.GET and "longitude" in request.GET:
+            form.base_fields["latitude"].initial = request.GET["latitude"]
+            form.base_fields["longitude"].initial = request.GET["longitude"]
+        if obj is None and request.GET.get("from_suggestion") == "1":
+            if "name" in form.base_fields:
+                form.base_fields["name"].initial = request.GET.get("details", "")
+            if "data_source" in form.base_fields:
+                form.base_fields["data_source"].initial = "App upload"
+            if "owner" in form.base_fields:
+                suggestion_owner = Toilets4LondonUser.objects.filter(
+                    email=SUGGESTION_OWNER_EMAIL
+                ).first()
+                if suggestion_owner is not None:
+                    form.base_fields["owner"].initial = suggestion_owner
         return form
 
     def has_change_permission(self, request, obj=None):
@@ -156,14 +172,10 @@ class ToiletAdmin(ImportExportModelAdmin):
                     settings.MAPS_KEY
                 ),
                 "js/admin/location_picker.js",
+                "js/admin/prefill_from_suggestion.js",
             )
-
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        if "latitude" in request.GET and "longitude" in request.GET:
-            form.base_fields["latitude"].initial = request.GET["latitude"]
-            form.base_fields["longitude"].initial = request.GET["longitude"]
-        return form
+        else:
+            js = ("js/admin/prefill_from_suggestion.js",)
 
 
 @admin.register(SuggestedToilet)
