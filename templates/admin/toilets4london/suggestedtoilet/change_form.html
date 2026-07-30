@@ -2,13 +2,17 @@
 
 {% block content %}
 {{ block.super }}
-<a href="#" id="create-toilet-button" class="button">Create Toilet with Prefilled Lat/Lng</a>
+<a href="#" id="create-toilet-button" class="button">Create Toilet from this Suggestion</a>
 <script type="text/javascript">
     document.getElementById('create-toilet-button').addEventListener('click', function(event) {
         event.preventDefault();
-        const latitude = "{{ original.latitude }}";
-        const longitude = "{{ original.longitude }}";
-        const url = `/admin/toilets4london/toilet/add/?latitude=${latitude}&longitude=${longitude}`;
+        const params = new URLSearchParams({
+            from_suggestion: '1',
+            latitude: "{{ original.latitude }}",
+            longitude: "{{ original.longitude }}",
+            details: "{{ original.details|escapejs }}",
+        });
+        const url = '/admin/toilets4london/toilet/add/?' + params.toString();
         window.open(url, '_blank');
     });
 </script>
